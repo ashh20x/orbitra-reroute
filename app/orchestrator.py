@@ -820,6 +820,15 @@ async def run(shipment: Shipment, signal: DisruptionSignal) -> str:
         },
     )
 
+    # ── Step 9: Notify Trade Ops by email so they can reply APPROVE/REJECT ───
+    await _send_approval_request(
+        to_email=trade_ops_email,
+        subject=subject,
+        draft_type_label="Trade Ops Pre-Reroute Notification",
+        vessel_name=shipment.vessel_name or "Unknown Vessel",
+        recommended_port=assessment.recommended_port or "TBD",
+    )
+
     logger.info(
         "Shipment %s → AWAITING_TRADE_OPS_APPROVAL (gmail_draft=%s)",
         shipment.id[:8],
