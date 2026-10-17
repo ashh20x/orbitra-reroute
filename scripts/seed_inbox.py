@@ -65,8 +65,13 @@ def send_fixture(service, fixture_key: str) -> None:
     msg["subject"] = f"[DEMO] {subject}"
 
     raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
-    result = service.users().messages().send(userId="me", body={"raw": raw}).execute()
-    print(f"  Sent fixture '{fixture_key}' ({fname}) → message ID: {result['id']}")
+    # Use insert() instead of send() so the message lands directly in INBOX as UNREAD.
+    # messages.send() to self can skip INBOX/UNREAD labels in Gmail.
+    result = service.users().messages().insert(
+        userId="me",
+        body={"raw": raw, "labelIds": ["INBOX", "UNREAD"]},
+    ).execute()
+    print(f"  Inserted fixture '{fixture_key}' ({fname}) → message ID: {result['id']}")
 
 
 def main() -> None:

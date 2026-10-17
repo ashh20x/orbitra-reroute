@@ -314,6 +314,8 @@ async def _execute_approval(draft_id: str, approver: str = "trade.ops") -> str:
     from app.store import DraftRow, ShipmentRow, get_session
     from sqlmodel import select
 
+    draft_shipment_id: str | None = None
+    draft_type: str | None = None
     with get_session() as session:
         draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
         if not draft:
@@ -321,6 +323,8 @@ async def _execute_approval(draft_id: str, approver: str = "trade.ops") -> str:
         if draft.status != "pending":
             return draft.status
         gmail_draft_id = draft.gmail_draft_id
+        draft_shipment_id = draft.shipment_id
+        draft_type = draft.draft_type
 
     if not gmail_draft_id:
         raise ValueError("No Gmail draft ID on record")
@@ -329,7 +333,6 @@ async def _execute_approval(draft_id: str, approver: str = "trade.ops") -> str:
     await send_draft(gmail_draft_id)
 
     shipment_id_for_pipeline: str | None = None
-    shipment_row = None
 
     with get_session() as session:
         draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
@@ -337,27 +340,38 @@ async def _execute_approval(draft_id: str, approver: str = "trade.ops") -> str:
             draft.status = "sent"
             session.add(draft)
         ship = session.exec(
-            select(ShipmentRow).where(ShipmentRow.id == draft.shipment_id)
+            select(ShipmentRow).where(ShipmentRow.id == draft_shipment_id)
         ).first()
         if ship:
-            ship.state = "trade_ops_approved"
-            shipment_id_for_pipeline = ship.id
+            if draft_type == DraftType.TRADE_OPS_NOTIFICATION.value:
+                ship.state = "trade_ops_approved"
+                shipment_id_for_pipeline = ship.id
+            else:
+                ship.state = "completed"
             session.add(ship)
         session.commit()
 
-    _audit(
-        draft.shipment_id,
-        "trade_ops_approved",
-        {"draft_id": draft_id, "approver": approver},
-    )
+    event = "trade_ops_approved" if draft_type == DraftType.TRADE_OPS_NOTIFICATION.value else f"{draft_type}_approved"
+    _audit(draft_shipment_id, event, {"draft_id": draft_id, "approver": approver})
 
     if shipment_id_for_pipeline:
         with get_session() as _s:
             shipment_row = _s.exec(
                 select(ShipmentRow).where(ShipmentRow.id == shipment_id_for_pipeline)
             ).first()
+            # Capture all needed fields before session closes
+            if shipment_row:
+                from types import SimpleNamespace
+                snap = SimpleNamespace(
+                    id=shipment_row.id,
+                    vessel_name=shipment_row.vessel_name,
+                    bill_of_lading=shipment_row.bill_of_lading,
+                    recommended_port=shipment_row.recommended_port,
+                    risk_level=shipment_row.risk_level,
+                    received_at=shipment_row.received_at,
+                )
         if shipment_row:
-            _asyncio.create_task(post_approval_pipeline(shipment_row))
+            _asyncio.create_task(post_approval_pipeline(snap))
 
     return "sent"
 
@@ -505,6 +519,25 @@ async def process_email(message: dict) -> str:
     message_id = message.get("id", "")
     body = message.get("body", "")
     subject = message.get("subject", "")
+
+    # ── Early exit: deduplication — skip if already processed this message ID ──
+    if message_id:
+        from app.store import ShipmentRow, get_session
+        from sqlmodel import select as _select
+        with get_session() as _ds:
+            existing = _ds.exec(
+                _select(ShipmentRow).where(ShipmentRow.gmail_message_id == message_id)
+            ).first()
+        if existing:
+            logger.debug("Skipping already-processed message %s (shipment %s)", message_id, existing.id[:8])
+            return existing.state
+
+    # ── Early exit: skip emails sent BY this agent (approval-request notifications) ──
+    monitor = os.environ.get("GMAIL_MONITOR_ADDRESS", "")
+    sender_addr = message.get("from", "")
+    if monitor and monitor.lower() in sender_addr.lower() and not subject.lower().startswith("re:"):
+        logger.debug("Skipping self-sent email: %s", subject)
+        return "self_sent_skipped"
 
     # ── Early exit: reply-based approval/rejection ─────────────────────────
     reply_result = await _handle_approval_reply(message)
