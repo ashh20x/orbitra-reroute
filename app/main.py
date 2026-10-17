@@ -235,7 +235,7 @@ async def approve_draft(
     draft_id: str,
     approver: str = "trade.ops",
 ) -> JSONResponse:
-    from app.store import DraftRow, ShipmentRow, get_session
+    from app.store import DraftRow, get_session
     from sqlmodel import select
 
     with get_session() as session:
@@ -245,62 +245,18 @@ async def approve_draft(
         if not draft:
             raise HTTPException(status_code=404, detail="Draft not found.")
         if draft.status != "pending":
-            raise HTTPException(
-                status_code=409,
-                detail=f"Draft is already {draft.status}.",
-            )
-        gmail_draft_id = draft.gmail_draft_id
-
-    if not gmail_draft_id:
-        raise HTTPException(status_code=400, detail="No Gmail draft ID on record.")
+            raise HTTPException(status_code=409, detail=f"Draft is already {draft.status}.")
+        if not draft.gmail_draft_id:
+            raise HTTPException(status_code=400, detail="No Gmail draft ID on record.")
 
     try:
-        from app.integrations.gmail import send_draft
-        await send_draft(gmail_draft_id)
+        from app.orchestrator import _execute_approval
+        result = await _execute_approval(draft_id, approver=approver)
     except Exception as exc:
-        logger.error("send_draft failed: %s", exc)
-        raise HTTPException(status_code=500, detail=f"Gmail send failed: {exc}")
+        logger.error("approve_draft failed: %s", exc)
+        raise HTTPException(status_code=500, detail=str(exc))
 
-    shipment_id_for_pipeline: str | None = None
-
-    with get_session() as session:
-        draft = session.exec(
-            select(DraftRow).where(DraftRow.id == draft_id)
-        ).first()
-        if draft:
-            draft.status = "sent"
-            session.add(draft)
-
-        ship = session.exec(
-            select(ShipmentRow).where(ShipmentRow.id == draft.shipment_id)
-        ).first()
-        if ship:
-            ship.state = "trade_ops_approved"
-            shipment_id_for_pipeline = ship.id
-            session.add(ship)
-
-        session.commit()
-
-    from app.orchestrator import _audit
-    _audit(
-        draft.shipment_id,
-        "trade_ops_approved",
-        {"draft_id": draft_id, "approver": approver},
-    )
-
-    # Kick off P2 post-approval pipeline as a background task
-    if shipment_id_for_pipeline:
-        import asyncio as _asyncio
-        from app.orchestrator import post_approval_pipeline as _post_approval
-
-        with get_session() as _s:
-            _ship = _s.exec(
-                select(ShipmentRow).where(ShipmentRow.id == shipment_id_for_pipeline)
-            ).first()
-        if _ship:
-            _asyncio.create_task(_post_approval(_ship))
-
-    return JSONResponse({"status": "sent", "draft_id": draft_id})
+    return JSONResponse({"status": result, "draft_id": draft_id})
 
 
 @app.post("/approvals/{draft_id}/reject")
@@ -308,7 +264,7 @@ async def reject_draft(
     draft_id: str,
     approver: str = "trade.ops",
 ) -> JSONResponse:
-    from app.store import DraftRow, ShipmentRow, get_session
+    from app.store import DraftRow, get_session
     from sqlmodel import select
 
     with get_session() as session:
@@ -318,45 +274,16 @@ async def reject_draft(
         if not draft:
             raise HTTPException(status_code=404, detail="Draft not found.")
         if draft.status != "pending":
-            raise HTTPException(
-                status_code=409,
-                detail=f"Draft is already {draft.status}.",
-            )
-        gmail_draft_id = draft.gmail_draft_id
-        shipment_id = draft.shipment_id
+            raise HTTPException(status_code=409, detail=f"Draft is already {draft.status}.")
 
-    if gmail_draft_id:
-        try:
-            from app.integrations.gmail import delete_draft
-            await delete_draft(gmail_draft_id)
-        except Exception as exc:
-            logger.warning("delete_draft failed (non-fatal): %s", exc)
+    try:
+        from app.orchestrator import _execute_rejection
+        result = await _execute_rejection(draft_id, approver=approver)
+    except Exception as exc:
+        logger.error("reject_draft failed: %s", exc)
+        raise HTTPException(status_code=500, detail=str(exc))
 
-    with get_session() as session:
-        draft = session.exec(
-            select(DraftRow).where(DraftRow.id == draft_id)
-        ).first()
-        if draft:
-            draft.status = "rejected"
-            session.add(draft)
-
-        ship = session.exec(
-            select(ShipmentRow).where(ShipmentRow.id == shipment_id)
-        ).first()
-        if ship:
-            ship.state = "trade_ops_rejected"
-            session.add(ship)
-
-        session.commit()
-
-    from app.orchestrator import _audit
-    _audit(
-        shipment_id,
-        "trade_ops_rejected",
-        {"draft_id": draft_id, "approver": approver},
-    )
-
-    return JSONResponse({"status": "rejected", "draft_id": draft_id})
+    return JSONResponse({"status": result, "draft_id": draft_id})
 
 
 # ---------------------------------------------------------------------------

@@ -276,7 +276,15 @@ def _notification_html(
 
   <div style="background:#0d1d20;border:1px solid #2C838C;border-radius:6px;padding:16px 20px;margin:20px 0;text-align:center;">
     <p style="color:#888;font-size:12px;margin:0 0 12px;">A draft notification is ready for your review.</p>
-    <a href="{base_url}/approvals" style="background:#2C838C;color:#E8F0F0;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;">Review &amp; Approve Draft →</a>
+    <a href="{base_url}/approvals" style="background:#2C838C;color:#E8F0F0;padding:10px 24px;border-radius:6px;text-decoration:none;font-weight:600;font-size:14px;display:inline-block;">Review &amp; Approve in Web UI →</a>
+  </div>
+
+  <div style="background:#071216;border:1px solid rgba(44,131,140,0.4);border-radius:6px;padding:14px 18px;margin:12px 0;">
+    <p style="color:#2CECC0;font-weight:600;font-size:13px;margin:0 0 6px;">Or reply to this email:</p>
+    <p style="color:#aaa;font-size:12px;margin:0;">
+      Reply <strong style="color:#2CECC0;font-size:14px;">APPROVE</strong> to send the reroute outreach to providers, Finance, and Compliance.<br>
+      Reply <strong style="color:#FA643C;font-size:14px;">REJECT</strong> to cancel this reroute recommendation.
+    </p>
   </div>
 
   <p style="font-size:11px;color:#666;text-align:center;margin-top:8px;">Workbook attached — {wb_count} providers qualified.</p>
@@ -289,6 +297,163 @@ def _notification_html(
   </p>
 </div>
 </body></html>"""
+
+
+# ---------------------------------------------------------------------------
+# Approval / rejection helpers (shared by web UI and email reply handler)
+# ---------------------------------------------------------------------------
+
+
+async def _execute_approval(draft_id: str, approver: str = "trade.ops") -> str:
+    """Send the notification draft and fire the post-approval pipeline.
+
+    Returns "sent" or raises on failure.
+    """
+    import asyncio as _asyncio
+
+    from app.store import DraftRow, ShipmentRow, get_session
+    from sqlmodel import select
+
+    with get_session() as session:
+        draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
+        if not draft:
+            raise ValueError(f"Draft {draft_id} not found")
+        if draft.status != "pending":
+            return draft.status
+        gmail_draft_id = draft.gmail_draft_id
+
+    if not gmail_draft_id:
+        raise ValueError("No Gmail draft ID on record")
+
+    from app.integrations.gmail import send_draft
+    await send_draft(gmail_draft_id)
+
+    shipment_id_for_pipeline: str | None = None
+    shipment_row = None
+
+    with get_session() as session:
+        draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
+        if draft:
+            draft.status = "sent"
+            session.add(draft)
+        ship = session.exec(
+            select(ShipmentRow).where(ShipmentRow.id == draft.shipment_id)
+        ).first()
+        if ship:
+            ship.state = "trade_ops_approved"
+            shipment_id_for_pipeline = ship.id
+            session.add(ship)
+        session.commit()
+
+    _audit(
+        draft.shipment_id,
+        "trade_ops_approved",
+        {"draft_id": draft_id, "approver": approver},
+    )
+
+    if shipment_id_for_pipeline:
+        with get_session() as _s:
+            shipment_row = _s.exec(
+                select(ShipmentRow).where(ShipmentRow.id == shipment_id_for_pipeline)
+            ).first()
+        if shipment_row:
+            _asyncio.create_task(post_approval_pipeline(shipment_row))
+
+    return "sent"
+
+
+async def _execute_rejection(draft_id: str, approver: str = "trade.ops") -> str:
+    """Delete the notification draft and mark the shipment rejected.
+
+    Returns "rejected" or raises on failure.
+    """
+    from app.store import DraftRow, ShipmentRow, get_session
+    from sqlmodel import select
+
+    with get_session() as session:
+        draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
+        if not draft:
+            raise ValueError(f"Draft {draft_id} not found")
+        if draft.status != "pending":
+            return draft.status
+        gmail_draft_id = draft.gmail_draft_id
+        shipment_id = draft.shipment_id
+
+    if gmail_draft_id:
+        try:
+            from app.integrations.gmail import delete_draft
+            await delete_draft(gmail_draft_id)
+        except Exception as exc:
+            logger.warning("delete_draft failed (non-fatal): %s", exc)
+
+    with get_session() as session:
+        draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
+        if draft:
+            draft.status = "rejected"
+            session.add(draft)
+        ship = session.exec(
+            select(ShipmentRow).where(ShipmentRow.id == shipment_id)
+        ).first()
+        if ship:
+            ship.state = "trade_ops_rejected"
+            session.add(ship)
+        session.commit()
+
+    _audit(
+        shipment_id,
+        "trade_ops_rejected",
+        {"draft_id": draft_id, "approver": approver},
+    )
+    return "rejected"
+
+
+async def _handle_approval_reply(message: dict) -> str | None:
+    """If the message is a reply to a pending notification draft, process it.
+
+    Returns the resulting state string, or None if not a reply we handle.
+    """
+    subject = message.get("subject", "")
+    if not re.match(r"re:\s*\[", subject, re.IGNORECASE):
+        return None
+
+    bare_subject = re.sub(r"^re:\s*", "", subject, flags=re.IGNORECASE).strip()
+
+    from app.store import DraftRow, get_session
+    from sqlmodel import select
+
+    with get_session() as session:
+        draft = session.exec(
+            select(DraftRow)
+            .where(DraftRow.subject == bare_subject)
+            .where(DraftRow.draft_type == "trade_ops_notification")
+            .where(DraftRow.status == "pending")
+            .order_by(DraftRow.created_at.desc())
+        ).first()
+
+    if not draft:
+        return None
+
+    body_upper = message.get("body", "").upper()
+    sender = message.get("from", "trade.ops@email")
+
+    if "APPROVE" in body_upper:
+        result = await _execute_approval(draft.id, approver=sender)
+        _audit(draft.shipment_id, "reply_approved", {"from": sender, "result": result})
+        logger.info("Reply approval processed: draft=%s approver=%s", draft.id, sender)
+        return "trade_ops_approved"
+    elif "REJECT" in body_upper:
+        result = await _execute_rejection(draft.id, approver=sender)
+        _audit(draft.shipment_id, "reply_rejected", {"from": sender, "result": result})
+        logger.info("Reply rejection processed: draft=%s approver=%s", draft.id, sender)
+        return "trade_ops_rejected"
+    else:
+        _audit(
+            draft.shipment_id,
+            "reply_ambiguous",
+            {"from": sender, "snippet": message.get("body", "")[:120]},
+        )
+        logger.warning("Ambiguous reply to draft %s from %s", draft.id, sender)
+        return None
 
 
 # ---------------------------------------------------------------------------
@@ -306,6 +471,11 @@ async def process_email(message: dict) -> str:
     message_id = message.get("id", "")
     body = message.get("body", "")
     subject = message.get("subject", "")
+
+    # ── Early exit: reply-based approval/rejection ─────────────────────────
+    reply_result = await _handle_approval_reply(message)
+    if reply_result is not None:
+        return reply_result
 
     shipment = Shipment(
         id=str(uuid.uuid4()),

@@ -88,6 +88,7 @@ async def get_message(message_id: str) -> dict[str, Any]:
         "from": _header(headers, "from"),
         "to": _header(headers, "to"),
         "date": _header(headers, "date"),
+        "in_reply_to": _header(headers, "in-reply-to"),
         "body": _extract_body(raw.get("payload", {})),
         "label_ids": raw.get("labelIds", []),
         "snippet": raw.get("snippet", ""),
