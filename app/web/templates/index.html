@@ -40,10 +40,14 @@
 <div class="space-y-3">
   {% for s in shipments %}
   <a href="/shipment/{{ s.id }}" class="card p-4 flex items-center gap-4 hover:border-brand-teal/50 transition-colors block">
+    {% if s.risk_level %}
     <span class="badge-{{ s.risk_level|lower }} text-xs px-2 py-0.5 rounded-full font-medium">{{ s.risk_level }}</span>
+    {% else %}
+    <span class="text-brand-light/30 text-xs px-2 py-0.5 rounded-full border border-brand-teal/20">—</span>
+    {% endif %}
     <div class="flex-1 min-w-0">
       <p class="text-brand-light text-sm font-medium truncate">{{ s.vessel_name or "Unknown vessel" }}</p>
-      <p class="text-brand-light/40 text-xs">B/L {{ s.bill_of_lading or "—" }} · received {{ s.received_at }}</p>
+      <p class="text-brand-light/40 text-xs">B/L {{ s.bill_of_lading or "—" }} · {{ s.received_at.strftime("%d %b %H:%M") if s.received_at else "—" }}</p>
     </div>
     <span class="text-brand-light/30 text-xs">{{ s.state }}</span>
   </a>
