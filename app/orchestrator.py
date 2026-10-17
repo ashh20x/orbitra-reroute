@@ -678,6 +678,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         contact_website = provider.get("contact_website", "N/A")
 
         primary_text = (
+            f"[WRITE ENTIRELY IN ENGLISH]\n\n"
             f"Urgent provider outreach for shipment diversion to {recommended_port}.\n\n"
             f"Vessel: {vessel_name}\n"
             f"Bill of Lading: {bill_of_lading}\n"
@@ -703,7 +704,7 @@ async def post_approval_pipeline(shipment_row) -> None:
                 "email",
                 primary_text,
                 secondary_text,
-                options={"mode": "write", "tone": "formal"},
+                options={"mode": "write", "tone": "formal", "language": "en"},
             )
             latency_ms = int((_time.monotonic() - t0) * 1000)
             body_text = evolus_result
@@ -758,6 +759,7 @@ async def post_approval_pipeline(shipment_row) -> None:
     # ── Finance digest draft ──────────────────────────────────────────────
     _save_state(shipment_id, "notifying_finance")
     summary_text = (
+        f"[WRITE ENTIRELY IN ENGLISH]\n\n"
         f"Shipment Diversion Summary — Finance Digest\n\n"
         f"Vessel: {vessel_name}\n"
         f"Bill of Lading: {bill_of_lading}\n"
@@ -778,7 +780,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         finance_result = await run_ai_tool(
             "summarize",
             summary_text,
-            options={"length": "short", "style": "bullets"},
+            options={"length": "short", "style": "bullets", "language": "en"},
         )
         latency_ms = int((_time.monotonic() - t0) * 1000)
         finance_body_text = finance_result
@@ -832,6 +834,7 @@ async def post_approval_pipeline(shipment_row) -> None:
     # ── Compliance notes draft ────────────────────────────────────────────
     _save_state(shipment_id, "notifying_compliance")
     compliance_text = (
+        f"[WRITE ENTIRELY IN ENGLISH]\n\n"
         f"Compliance Notification — Shipment Diversion\n\n"
         f"Vessel: {vessel_name}\n"
         f"Bill of Lading: {bill_of_lading}\n"
@@ -856,7 +859,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         compliance_result = await run_ai_tool(
             "email",
             compliance_text,
-            options={"mode": "write", "tone": "formal"},
+            options={"mode": "write", "tone": "formal", "language": "en"},
         )
         latency_ms = int((_time.monotonic() - t0) * 1000)
         compliance_body_text = compliance_result
