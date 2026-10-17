@@ -157,6 +157,32 @@ async def delete_draft(draft_id: str) -> None:
     await asyncio.get_event_loop().run_in_executor(None, _delete)
 
 
+async def send_message(
+    to: list[str],
+    subject: str,
+    body_html: str,
+) -> None:
+    """Send an email immediately (no draft — used for approval-request notifications)."""
+    service = _get_service()
+    recipients = [_DEMO_SINK] if (_DEMO_MODE and _DEMO_SINK) else to
+    final_subj = f"[DEMO] {subject}" if _DEMO_MODE else subject
+
+    msg = MIMEMultipart("alternative")
+    msg["to"] = ", ".join(recipients)
+    msg["from"] = _MONITOR
+    msg["subject"] = final_subj
+    msg.attach(MIMEText(body_html, "html", "utf-8"))
+
+    raw = base64.urlsafe_b64encode(msg.as_bytes()).decode()
+
+    def _send() -> None:
+        service.users().messages().send(
+            userId="me", body={"raw": raw}
+        ).execute()
+
+    await asyncio.get_event_loop().run_in_executor(None, _send)
+
+
 async def mark_read(message_id: str) -> None:
     """Remove UNREAD label so the message isn't polled again."""
     service = _get_service()

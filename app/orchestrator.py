@@ -407,16 +407,49 @@ async def _execute_rejection(draft_id: str, approver: str = "trade.ops") -> str:
     return "rejected"
 
 
+async def _send_approval_request(
+    to_email: str,
+    subject: str,
+    draft_type_label: str,
+    vessel_name: str,
+    recommended_port: str,
+) -> None:
+    """Send an email to Trade Ops asking them to reply APPROVE or REJECT for a pending draft."""
+    body_html = f"""<!DOCTYPE html><html><body style="background:#071216;color:#E8F0F0;font-family:Arial,sans-serif;padding:24px;">
+  <p style="color:#2CECC0;font-weight:600;font-size:15px;margin:0 0 12px;">Draft ready for approval — {draft_type_label}</p>
+  <table style="font-size:13px;border-collapse:collapse;margin-bottom:16px;">
+    <tr><td style="color:#888;padding:3px 14px 3px 0;">Vessel</td><td style="color:#E8F0F0;font-weight:600;">{vessel_name}</td></tr>
+    <tr><td style="color:#888;padding:3px 14px 3px 0;">Diversion Port</td><td style="color:#2CECC0;font-weight:600;">{recommended_port}</td></tr>
+    <tr><td style="color:#888;padding:3px 14px 3px 0;">Draft type</td><td style="color:#E8F0F0;">{draft_type_label}</td></tr>
+  </table>
+  <div style="background:#0d1d20;border:1px solid rgba(44,131,140,0.4);border-radius:6px;padding:14px 18px;margin:12px 0;">
+    <p style="color:#2CECC0;font-weight:600;font-size:13px;margin:0 0 6px;">Reply to this email:</p>
+    <p style="color:#aaa;font-size:12px;margin:0;">
+      Reply <strong style="color:#2CECC0;font-size:14px;">APPROVE</strong> to send this draft.<br>
+      Reply <strong style="color:#FA643C;font-size:14px;">REJECT</strong> to discard it.
+    </p>
+  </div>
+  <p style="font-size:11px;color:#555;margin-top:16px;">Orbitra Reroute AI Agent · AMD Hackathon Act III</p>
+</body></html>"""
+    try:
+        from app.integrations.gmail import send_message
+        await send_message(to=[to_email], subject=subject, body_html=body_html)
+    except Exception as exc:
+        logger.warning("Failed to send approval-request notification: %s", exc)
+
+
 async def _handle_approval_reply(message: dict) -> str | None:
     """If the message is a reply to a pending notification draft, process it.
 
     Returns the resulting state string, or None if not a reply we handle.
     """
     subject = message.get("subject", "")
-    if not re.match(r"re:\s*\[", subject, re.IGNORECASE):
+    if not re.match(r"re:\s+", subject, re.IGNORECASE):
         return None
 
+    # Strip "Re: " then "[DEMO] " so the subject matches DraftRow.subject exactly
     bare_subject = re.sub(r"^re:\s*", "", subject, flags=re.IGNORECASE).strip()
+    bare_subject = re.sub(r"^\[DEMO\]\s*", "", bare_subject, flags=re.IGNORECASE).strip()
 
     from app.store import DraftRow, get_session
     from sqlmodel import select
@@ -425,7 +458,6 @@ async def _handle_approval_reply(message: dict) -> str | None:
         draft = session.exec(
             select(DraftRow)
             .where(DraftRow.subject == bare_subject)
-            .where(DraftRow.draft_type == "trade_ops_notification")
             .where(DraftRow.status == "pending")
             .order_by(DraftRow.created_at.desc())
         ).first()
@@ -436,23 +468,25 @@ async def _handle_approval_reply(message: dict) -> str | None:
     body_upper = message.get("body", "").upper()
     sender = message.get("from", "trade.ops@email")
 
+    draft_type = draft.draft_type
+
     if "APPROVE" in body_upper:
         result = await _execute_approval(draft.id, approver=sender)
-        _audit(draft.shipment_id, "reply_approved", {"from": sender, "result": result})
-        logger.info("Reply approval processed: draft=%s approver=%s", draft.id, sender)
-        return "trade_ops_approved"
+        _audit(draft.shipment_id, "reply_approved", {"from": sender, "draft_type": draft_type, "result": result})
+        logger.info("Reply approval: draft=%s type=%s approver=%s", draft.id, draft_type, sender)
+        return "trade_ops_approved" if draft_type == "trade_ops_notification" else f"{draft_type}_sent"
     elif "REJECT" in body_upper:
         result = await _execute_rejection(draft.id, approver=sender)
-        _audit(draft.shipment_id, "reply_rejected", {"from": sender, "result": result})
-        logger.info("Reply rejection processed: draft=%s approver=%s", draft.id, sender)
-        return "trade_ops_rejected"
+        _audit(draft.shipment_id, "reply_rejected", {"from": sender, "draft_type": draft_type, "result": result})
+        logger.info("Reply rejection: draft=%s type=%s approver=%s", draft.id, draft_type, sender)
+        return "trade_ops_rejected" if draft_type == "trade_ops_notification" else f"{draft_type}_rejected"
     else:
         _audit(
             draft.shipment_id,
             "reply_ambiguous",
-            {"from": sender, "snippet": message.get("body", "")[:120]},
+            {"from": sender, "draft_type": draft_type, "snippet": message.get("body", "")[:120]},
         )
-        logger.warning("Ambiguous reply to draft %s from %s", draft.id, sender)
+        logger.warning("Ambiguous reply to draft %s (type=%s) from %s", draft.id, draft_type, sender)
         return None
 
 
@@ -923,6 +957,13 @@ async def post_approval_pipeline(shipment_row) -> None:
                 "provider_outreach_draft_created",
                 {"provider": provider_name, "gmail_draft_id": gmail_draft_id},
             )
+            await _send_approval_request(
+                to_email=sink_email,
+                subject=subject,
+                draft_type_label=f"Provider Outreach — {provider_name}",
+                vessel_name=vessel_name,
+                recommended_port=recommended_port,
+            )
         except Exception as exc:
             logger.error("Failed to create provider outreach draft for %s: %s", provider_name, exc)
 
@@ -997,6 +1038,13 @@ async def post_approval_pipeline(shipment_row) -> None:
             shipment_id,
             "finance_digest_draft_created",
             {"gmail_draft_id": finance_draft_id},
+        )
+        await _send_approval_request(
+            to_email=sink_email,
+            subject=finance_subject,
+            draft_type_label="Finance Digest",
+            vessel_name=vessel_name,
+            recommended_port=recommended_port,
         )
     except Exception as exc:
         logger.error("Failed to create finance digest draft: %s", exc)
@@ -1076,6 +1124,13 @@ async def post_approval_pipeline(shipment_row) -> None:
             shipment_id,
             "compliance_notes_draft_created",
             {"gmail_draft_id": compliance_draft_id},
+        )
+        await _send_approval_request(
+            to_email=sink_email,
+            subject=compliance_subject,
+            draft_type_label="Compliance Notes",
+            vessel_name=vessel_name,
+            recommended_port=recommended_port,
         )
     except Exception as exc:
         logger.error("Failed to create compliance notes draft: %s", exc)
