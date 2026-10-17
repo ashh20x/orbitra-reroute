@@ -401,6 +401,24 @@ async def situation_room(request: Request, shipment_id: str) -> HTMLResponse:
     )
 
 
+@app.get("/gmail/debug")
+async def gmail_debug() -> JSONResponse:
+    """Diagnose Gmail auth: returns authenticated account + INBOX UNREAD messages."""
+    try:
+        from app.integrations.gmail import get_authenticated_user, poll_inbox
+        user_info = await get_authenticated_user()
+        stubs = await poll_inbox(max_results=10)
+        return JSONResponse({
+            "authenticated_as": user_info,
+            "gmail_monitor_address_env": os.environ.get("GMAIL_MONITOR_ADDRESS", "(not set)"),
+            "demo_sink_email_env": os.environ.get("DEMO_SINK_EMAIL", "(not set)"),
+            "unread_inbox_count": len(stubs),
+            "unread_message_ids": [s["id"] for s in stubs],
+        })
+    except Exception as exc:
+        return JSONResponse({"error": str(exc)}, status_code=500)
+
+
 @app.get("/amd/usage")
 async def amd_usage() -> JSONResponse:
     api_key = os.environ.get("TOKEN_FACTORY_API_KEY", "")

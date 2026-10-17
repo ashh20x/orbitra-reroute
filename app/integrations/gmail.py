@@ -54,6 +54,17 @@ def _header(headers: list[dict], name: str) -> str:
     return ""
 
 
+async def get_authenticated_user() -> dict[str, Any]:
+    """Return the email address of the authenticated Gmail account."""
+    service = _get_service()
+
+    def _fetch() -> dict:
+        return service.users().getProfile(userId="me").execute()
+
+    result = await asyncio.get_event_loop().run_in_executor(None, _fetch)
+    return {"email": result.get("emailAddress"), "messages_total": result.get("messagesTotal")}
+
+
 async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
     """Return UNREAD INBOX message stubs (id + threadId only)."""
     service = _get_service()
