@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Trade Ops Desk — Orbitra Reroute{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-semibold text-brand-light">Trade Ops Desk</h1>
+    <p class="text-brand-light/50 text-sm mt-1">Santos → Jebel Ali · Cold-chain pre-re-route agent</p>
+  </div>
+  <button class="btn-primary text-sm"
+          hx-post="/inbox/check"
+          hx-swap="none"
+          hx-indicator="#spinner">
+    Check inbox now
+  </button>
+</div>
+
+<!-- Status cards -->
+<div class="grid grid-cols-3 gap-4 mb-8">
+  <div class="card p-4">
+    <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Active shipments</p>
+    <p class="text-2xl font-semibold text-brand-mint">{{ stats.active }}</p>
+  </div>
+  <div class="card p-4">
+    <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Awaiting approval</p>
+    <p class="text-2xl font-semibold text-brand-light">{{ stats.pending_approvals }}</p>
+  </div>
+  <div class="card p-4">
+    <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Processed today</p>
+    <p class="text-2xl font-semibold text-brand-light/60">{{ stats.processed_today }}</p>
+  </div>
+</div>
+
+<!-- Recent signals -->
+<h2 class="text-brand-light/70 text-sm uppercase tracking-wide mb-3">Recent signals</h2>
+{% if not shipments %}
+<div class="card p-8 text-center text-brand-light/30 text-sm">
+  No signals yet. Run <code class="text-brand-mint">make seed</code> to load demo fixtures.
+</div>
+{% else %}
+<div class="space-y-3">
+  {% for s in shipments %}
+  <a href="/shipment/{{ s.id }}" class="card p-4 flex items-center gap-4 hover:border-brand-teal/50 transition-colors block">
+    <span class="badge-{{ s.risk_level|lower }} text-xs px-2 py-0.5 rounded-full font-medium">{{ s.risk_level }}</span>
+    <div class="flex-1 min-w-0">
+      <p class="text-brand-light text-sm font-medium truncate">{{ s.vessel_name or "Unknown vessel" }}</p>
+      <p class="text-brand-light/40 text-xs">B/L {{ s.bill_of_lading or "—" }} · received {{ s.received_at }}</p>
+    </div>
+    <span class="text-brand-light/30 text-xs">{{ s.state }}</span>
+  </a>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

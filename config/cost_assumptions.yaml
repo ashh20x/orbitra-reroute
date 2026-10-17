@@ -1,0 +1,70 @@
+# Cost model parameters — triangular distributions (low / mode / high)
+# source: PLACEHOLDER means replace with a real market quote before going live
+# The UI shows a warning banner when any PLACEHOLDER feeds the result.
+
+reefer_daily_usd:
+  low: 80
+  mode: 120
+  high: 200
+  unit: USD/container/day
+  source: "PLACEHOLDER — replace with quote from carrier"
+  confidence: low
+
+cargo_value_per_container_usd:
+  low: 30000
+  mode: 50000
+  high: 80000
+  unit: USD/container
+  source: "PLACEHOLDER — replace with actual cargo declaration"
+  confidence: low
+
+insurance_uplift_pct:
+  low: 0.3
+  mode: 0.5
+  high: 1.0
+  unit: "% of cargo value"
+  source: "PLACEHOLDER — replace with insurance quote"
+  confidence: low
+
+# Extension point for W5 dwell-time heuristics (ROADMAP — not implemented)
+# Set to 1.0 to have no effect. Spatial dwell-time analysis would adjust this.
+dwell_time_multiplier: 1.0
+
+ports:
+  Jeddah:
+    extra_sea_days:
+      low: 2
+      mode: 4
+      high: 8
+      source: "PLACEHOLDER — verify with carrier for Santos→Jeddah"
+    handling_usd:
+      low: 400
+      mode: 800
+      high: 1500
+      unit: USD/container
+      source: "PLACEHOLDER — Jeddah Islamic Port tariff"
+    inspection_usd:
+      low: 300
+      mode: 600
+      high: 1200
+      unit: USD/container
+      source: "PLACEHOLDER — SFDA inspection + Halal certification fees"
+
+  Salalah:
+    extra_sea_days:
+      low: 1
+      mode: 3
+      high: 6
+      source: "PLACEHOLDER — verify with carrier for Santos→Salalah"
+    handling_usd:
+      low: 300
+      mode: 600
+      high: 1100
+      unit: USD/container
+      source: "PLACEHOLDER — Salalah port tariff"
+    inspection_usd:
+      low: 200
+      mode: 450
+      high: 900
+      unit: USD/container
+      source: "PLACEHOLDER — Omani customs + Salalah Free Zone fees"

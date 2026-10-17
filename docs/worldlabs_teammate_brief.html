@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbitra Reroute — World Labs Worlds Brief</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Helvetica Neue', Arial, sans-serif; font-size: 13px; color: #1a1a1a; background: #fff; padding: 40px 48px; max-width: 860px; margin: 0 auto; line-height: 1.6; }
+    h1 { font-size: 22px; font-weight: 700; color: #071216; margin-bottom: 4px; }
+    .subtitle { font-size: 12px; color: #666; margin-bottom: 28px; }
+    h2 { font-size: 14px; font-weight: 700; color: #2C838C; text-transform: uppercase; letter-spacing: 0.06em; margin: 28px 0 10px; border-bottom: 1.5px solid #2C838C; padding-bottom: 4px; }
+    h3 { font-size: 13px; font-weight: 700; color: #1a1a1a; margin: 18px 0 6px; }
+    p { margin-bottom: 8px; }
+    ul, ol { margin: 6px 0 10px 20px; }
+    li { margin-bottom: 4px; }
+    table { width: 100%; border-collapse: collapse; margin: 10px 0 16px; font-size: 12px; }
+    th { background: #071216; color: #2CECC0; text-align: left; padding: 7px 10px; font-weight: 600; }
+    td { padding: 7px 10px; border-bottom: 1px solid #e8e8e8; vertical-align: top; }
+    tr:nth-child(even) td { background: #f7fafa; }
+    .world-card { border: 1.5px solid #2C838C; border-radius: 6px; padding: 16px 18px; margin: 14px 0; background: #f7fafa; }
+    .world-card h3 { color: #2C838C; margin-top: 0; font-size: 14px; }
+    .world-card .priority { display: inline-block; font-size: 11px; font-weight: 700; padding: 2px 8px; border-radius: 12px; margin-left: 8px; vertical-align: middle; }
+    .priority-required { background: #fde8e8; color: #c0392b; }
+    .priority-optional { background: #e8f4e8; color: #27ae60; }
+    .prompt-box { background: #071216; color: #2CECC0; border-radius: 4px; padding: 10px 12px; font-family: 'Courier New', monospace; font-size: 11px; margin: 8px 0; line-height: 1.5; }
+    .json-box { background: #1a1a2e; color: #e0e0e0; border-radius: 4px; padding: 12px 14px; font-family: 'Courier New', monospace; font-size: 11px; margin: 8px 0; line-height: 1.6; overflow-x: auto; }
+    .json-key { color: #9ECBFF; }
+    .json-str { color: #79C0FF; }
+    .json-comment { color: #8b949e; font-style: italic; }
+    .highlight { background: #fff3cd; border-left: 3px solid #f0a500; padding: 8px 12px; border-radius: 0 4px 4px 0; margin: 10px 0; font-size: 12px; }
+    .deadline-box { background: #071216; color: #fff; border-radius: 6px; padding: 14px 18px; margin: 16px 0; }
+    .deadline-box strong { color: #2CECC0; font-size: 15px; }
+    .step { display: flex; gap: 12px; margin-bottom: 10px; }
+    .step-num { background: #2C838C; color: #fff; width: 22px; height: 22px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; flex-shrink: 0; margin-top: 1px; }
+    .field-fill { background: #fffbe6; border: 1px dashed #f0a500; border-radius: 3px; padding: 1px 6px; font-family: monospace; font-size: 11px; }
+    .logo { font-size: 11px; color: #aaa; margin-bottom: 24px; letter-spacing: 0.04em; }
+    hr { border: none; border-top: 1px solid #e8e8e8; margin: 24px 0; }
+    @media print {
+      body { padding: 20px 24px; }
+      .world-card { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="logo">ORBITRA REROUTE · AMD HACKATHON ACT III · CONFIDENTIAL INTERNAL BRIEF</div>
+  <h1>World Labs — Spatial Worlds Brief</h1>
+  <div class="subtitle">For: World Labs Teammate &nbsp;|&nbsp; Prepared by: Orbitra Engineering &nbsp;|&nbsp; Date: 17 Oct 2026</div>
+
+  <h2>1. Context</h2>
+  <p><strong>Orbitra Reroute</strong> is an AI agent that pre-reroutes refrigerated poultry shipments (<strong>Santos, Brazil → Jebel Ali, UAE</strong>) when Gulf disruption (Hormuz, Red Sea, Bab-el-Mandeb) blocks the original route. The agent scores risk, builds a provider workbook, and presents Trade Operations with a recommended alternative port.</p>
+  <p>The <strong>Situation Room</strong> screen in our Trade Ops Desk UI shows a live 3D spatial world of the recommended port. When the agent recommends <em>Jeddah</em>, the Jeddah world loads; when it recommends <em>Salalah</em>, the Salalah world loads. The world thumbnail also appears on the risk card.</p>
+  <p>You are generating these worlds using <strong>Marble by World Labs</strong> (<code>marble.worldlabs.ai</code>). This is the W1 deliverable — hand-generated, cached worlds.</p>
+
+  <div class="deadline-box">
+    <strong>Deadline: 18 Oct 2026 · 21:30 GST</strong><br>
+    <span style="font-size:12px;color:#ccc;">Worlds must be ready before the P1 integration checkpoint. Jebel Ali is optional — focus on Jeddah and Salalah first.</span>
+  </div>
+
+  <h2>2. Worlds Required</h2>
+
+  <div class="world-card">
+    <h3>World 1 — Jeddah Islamic Port <span class="priority priority-required">REQUIRED</span></h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>ID (in our system)</td><td><code>jeddah-port-01</code></td></tr>
+      <tr><td>Port</td><td>Jeddah Islamic Port, Saudi Arabia (Red Sea coast)</td></tr>
+      <tr><td>Scope</td><td>Port-level view — container terminal, reefer yard, bonded warehouses</td></tr>
+      <tr><td>Use case</td><td>Shown when agent recommends Jeddah as reroute destination (Bab-el-Mandeb route)</td></tr>
+    </table>
+    <p><strong>Suggested Marble prompt:</strong></p>
+    <div class="prompt-box">Jeddah Islamic Port container terminal with reefer yard, bonded warehouses, and truck exit lanes. Saudi Arabia Red Sea coastline. Industrial port infrastructure, cold-chain storage facilities.</div>
+    <p style="font-size:11px;color:#666;">Key visual elements to aim for: container stacks, reefer plug banks, refrigerated warehouse units, quayside cranes, Red Sea horizon.</p>
+  </div>
+
+  <div class="world-card">
+    <h3>World 2 — Port of Salalah <span class="priority priority-required">REQUIRED</span></h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>ID (in our system)</td><td><code>salalah-port-01</code></td></tr>
+      <tr><td>Port</td><td>Port of Salalah, Oman (Arabian Sea)</td></tr>
+      <tr><td>Scope</td><td>Port-level view — container terminal, temperature-controlled storage, free zone</td></tr>
+      <tr><td>Use case</td><td>Shown when agent recommends Salalah as reroute destination (Arabian Sea — outside Hormuz)</td></tr>
+    </table>
+    <p><strong>Suggested Marble prompt:</strong></p>
+    <div class="prompt-box">Port of Salalah Oman container terminal with temperature-controlled storage, reefer plugs, Salalah Free Zone logistics hub. Arabian Sea port infrastructure.</div>
+    <p style="font-size:11px;color:#666;">Key visual elements: modern terminal layout, free zone warehouses, Arabian Sea backdrop, reefer storage facilities.</p>
+  </div>
+
+  <div class="world-card">
+    <h3>World 3 — Jebel Ali Port <span class="priority priority-optional">OPTIONAL (if time permits)</span></h3>
+    <table>
+      <tr><th>Field</th><th>Value</th></tr>
+      <tr><td>ID (in our system)</td><td><code>jebel-ali-port-01</code></td></tr>
+      <tr><td>Port</td><td>Jebel Ali, Dubai, UAE</td></tr>
+      <tr><td>Scope</td><td>Port-level view — the original destination, shown as baseline</td></tr>
+      <tr><td>Use case</td><td>Baseline/original destination reference in the Situation Room</td></tr>
+    </table>
+    <p><strong>Suggested Marble prompt:</strong></p>
+    <div class="prompt-box">Jebel Ali Port Dubai UAE container terminal. World's largest man-made harbour. DP World terminal infrastructure, modern deep-water berths, logistics hub.</div>
+  </div>
+
+  <h2>3. How to Generate in Marble</h2>
+  <div class="step"><div class="step-num">1</div><div>Open <strong>marble.worldlabs.ai</strong> and sign in.</div></div>
+  <div class="step"><div class="step-num">2</div><div>Create a new world → paste the prompt from section 2 → generate.</div></div>
+  <div class="step"><div class="step-num">3</div><div>Once generated, click <strong>Share</strong> → copy the share link. This is the <code>marble_url</code>.</div></div>
+  <div class="step"><div class="step-num">4</div><div>Right-click the world thumbnail image → <em>Copy image address</em> (or inspect element). This is the <code>thumbnail_url</code>.</div></div>
+  <div class="step"><div class="step-num">5</div><div>Test the share link in a <strong>logged-out / incognito browser</strong> — it must open without requiring a login. If it prompts for login, change the sharing setting to "Anyone with the link".</div></div>
+  <div class="step"><div class="step-num">6</div><div>Fill in <code>config/worlds.json</code> (see section 4 below) and push / share the file.</div></div>
+
+  <h2>4. What to Deliver — config/worlds.json</h2>
+  <p>Open <code>config/worlds.json</code> in the repo. For each world you generate, fill in the two highlighted fields:</p>
+
+  <div class="json-box">
+{
+  "worlds": [
+    {
+      "id": <span class="json-str">"jeddah-port-01"</span>,
+      "port": <span class="json-str">"Jeddah"</span>,
+      "scope": <span class="json-str">"port"</span>,
+      "title": <span class="json-str">"Jeddah Islamic Port — Container Terminal &amp; Reefer Yard"</span>,
+      <span style="color:#2CECC0;font-weight:bold">"marble_url": "https://marble.worldlabs.ai/world/&lt;YOUR-WORLD-ID&gt;"</span>,  <span class="json-comment">← paste share link here</span>
+      <span style="color:#2CECC0;font-weight:bold">"thumbnail_url": "https://..."</span>,                                        <span class="json-comment">← paste thumbnail URL here</span>
+      "source": <span class="json-str">"marble_app"</span>,
+      "link_verified_at": <span class="json-str">"2026-10-18T&lt;TIME&gt;Z"</span>   <span class="json-comment">← timestamp when you verified the link</span>
+    },
+    {
+      "id": <span class="json-str">"salalah-port-01"</span>,
+      "port": <span class="json-str">"Salalah"</span>,
+      ...
+      <span style="color:#2CECC0;font-weight:bold">"marble_url": "https://marble.worldlabs.ai/world/&lt;YOUR-WORLD-ID&gt;"</span>,
+      <span style="color:#2CECC0;font-weight:bold">"thumbnail_url": "https://..."</span>
+    }
+  ]
+}
+  </div>
+
+  <div class="highlight">
+    <strong>Only fill in <code>marble_url</code>, <code>thumbnail_url</code>, and <code>link_verified_at</code>.</strong> Leave all other fields exactly as they are in the file — the app reads the existing structure.
+  </div>
+
+  <h2>5. Important Notes</h2>
+  <ul>
+    <li><strong>Share links must work logged-out.</strong> Test in incognito before submitting. The demo judge will open them without a World Labs account.</li>
+    <li><strong>Thumbnail URL must be a direct image URL</strong> (ending in <code>.jpg</code>, <code>.png</code>, or similar) that loads without authentication. If the CDN URL requires a session token, let us know — we'll use a placeholder.</li>
+    <li>The worlds are labelled in the UI as: <em>"AI-generated spatial approximation — verify with provider / port authority."</em> — this is a non-negotiable hackathon guardrail.</li>
+    <li>Port accuracy is not critical — the worlds are illustrative. Focus on getting share links that open cleanly.</li>
+    <li>If Marble generation is slow, prioritise <strong>Jeddah first</strong>, then Salalah. Jebel Ali only if both are done with time to spare.</li>
+  </ul>
+
+  <h2>6. Sharing the Results</h2>
+  <p>Once worlds are ready, either:</p>
+  <ul>
+    <li><strong>Option A (preferred):</strong> Edit <code>config/worlds.json</code> in the repo directly and push/PR.</li>
+    <li><strong>Option B:</strong> Send the two URLs per world (marble_url + thumbnail_url) on the team chat — the engineering team will update the file.</li>
+  </ul>
+
+  <hr>
+  <p style="font-size:11px;color:#999;margin-top:16px;">Orbitra Reroute · AMD Hackathon Act III · Reinvent Commerce track · Deadline 18 Oct 2026 14:00 GST · This document is for internal team use only.</p>
+
+</body>
+</html>

@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% block title %}Situation Room — {{ shipment.vessel_name or "Shipment" }} — Orbitra Reroute{% endblock %}
+{% block content %}
+<div class="flex items-center gap-4 mb-6">
+  <a href="/shipment/{{ shipment.id }}" class="text-brand-light/40 hover:text-brand-mint text-sm">← Shipment Detail</a>
+  <span class="text-brand-light/20">/</span>
+  <h1 class="text-xl font-semibold text-brand-light">Situation Room</h1>
+  {% if shipment.risk_level %}
+  <span class="badge-{{ shipment.risk_level|lower }} text-xs px-2 py-0.5 rounded-full font-medium">
+    {{ shipment.risk_level }}
+  </span>
+  {% endif %}
+</div>
+
+<!-- Header card -->
+<div class="card p-5 mb-6">
+  <div class="flex items-start justify-between">
+    <div>
+      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Vessel</p>
+      <h2 class="text-brand-light font-semibold text-lg">{{ shipment.vessel_name or "Unknown Vessel" }}</h2>
+      {% if shipment.bill_of_lading %}
+      <p class="text-brand-light/50 text-sm mt-1">B/L: {{ shipment.bill_of_lading }}</p>
+      {% endif %}
+    </div>
+    <div class="text-right">
+      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Recommended Port</p>
+      <p class="text-brand-mint font-semibold text-lg">{{ shipment.recommended_port or "TBD" }}</p>
+      <p class="text-brand-light/40 text-xs mt-1">{{ shipment.state }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- Spatial world section -->
+{% if spatial and spatial.marble_url %}
+<div class="mb-6">
+  <h2 class="text-brand-teal text-xs uppercase tracking-wide mb-3">Spatial Overview — {{ shipment.recommended_port }}</h2>
+  <div class="card overflow-hidden" style="border-radius:0.75rem;">
+    <iframe
+      src="{{ spatial.marble_url }}"
+      title="World Labs Spatial View — {{ spatial.title }}"
+      style="width:100%;height:520px;border:none;display:block;background:#071216;"
+      allowfullscreen
+      loading="lazy"
+    ></iframe>
+  </div>
+  <p class="text-brand-light/30 text-xs mt-2 text-center italic">
+    AI-generated spatial approximation — verify with provider / port authority.
+  </p>
+</div>
+{% else %}
+<div class="mb-6">
+  <h2 class="text-brand-teal text-xs uppercase tracking-wide mb-3">Spatial Overview — {{ shipment.recommended_port or "Port" }}</h2>
+  <div class="card p-12 text-center" style="min-height:280px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+    <div style="width:64px;height:64px;border-radius:50%;background:rgba(44,131,140,0.12);border:2px solid rgba(44,131,140,0.25);display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2C838C" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/>
+        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+      </svg>
+    </div>
+    <p class="text-brand-light/60 font-medium mb-1">Generating spatial world&hellip;</p>
+    <p class="text-brand-light/30 text-sm">{{ shipment.recommended_port or "Port" }} — spatial preview not yet available.</p>
+    <p class="text-brand-light/20 text-xs mt-3 italic">AI-generated spatial approximation — verify with provider / port authority.</p>
+  </div>
+</div>
+{% endif %}
+
+<!-- Shipment details summary -->
+<div class="grid grid-cols-2 gap-4 mb-6">
+  <div class="card p-5">
+    <h3 class="text-brand-teal text-xs uppercase tracking-wide mb-3">Shipment Details</h3>
+    <dl class="space-y-2 text-sm">
+      <div class="flex justify-between">
+        <dt class="text-brand-light/40">State</dt>
+        <dd class="text-brand-mint font-medium">{{ shipment.state }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-brand-light/40">Risk Level</dt>
+        <dd>
+          {% if shipment.risk_level %}
+          <span class="badge-{{ shipment.risk_level|lower }} text-xs px-2 py-0.5 rounded-full font-medium">{{ shipment.risk_level }}</span>
+          {% else %}—{% endif %}
+        </dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-brand-light/40">Recommended Port</dt>
+        <dd class="text-brand-mint font-semibold">{{ shipment.recommended_port or "—" }}</dd>
+      </div>
+      <div class="flex justify-between">
+        <dt class="text-brand-light/40">Received</dt>
+        <dd class="text-brand-light/60 text-xs">{{ shipment.received_at.strftime("%d %b %Y %H:%M") if shipment.received_at else "—" }}</dd>
+      </div>
+    </dl>
+  </div>
+
+  <div class="card p-5">
+    <h3 class="text-brand-teal text-xs uppercase tracking-wide mb-3">Route</h3>
+    <div class="flex flex-col gap-3 text-sm">
+      <div>
+        <p class="text-brand-light/40 text-xs mb-0.5">Origin</p>
+        <p class="text-brand-light font-medium">Santos, Brazil</p>
+      </div>
+      <div class="flex items-center gap-2 text-brand-light/20">
+        <div style="flex:1;height:1px;background:rgba(44,131,140,0.3);"></div>
+        <span class="text-xs">reroute</span>
+        <div style="flex:1;height:1px;background:rgba(44,131,140,0.3);"></div>
+      </div>
+      <div>
+        <p class="text-brand-light/40 text-xs mb-0.5">Original Destination</p>
+        <p class="text-brand-light/60">Jebel Ali, UAE</p>
+      </div>
+      <div>
+        <p class="text-brand-light/40 text-xs mb-0.5">Diversion Port</p>
+        <p class="text-brand-mint font-semibold">{{ shipment.recommended_port or "TBD" }}</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="text-center">
+  <a href="/shipment/{{ shipment.id }}" class="btn-ghost text-sm">← Back to Shipment Detail</a>
+</div>
+{% endblock %}

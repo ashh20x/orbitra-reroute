@@ -1,0 +1,31 @@
+# Provider qualification rules for Google Places results.
+# Providers not meeting these rules are excluded from the workbook.
+
+min_rating: 4.5
+min_review_count: 50
+
+# At least one review from the last 12 months must mention one of these terms
+recent_review_keywords:
+  - reefer
+  - cold
+  - frozen
+  - poultry
+  - food
+  - customs
+  - sfda
+  - halal
+  - clearance
+  - logistics
+  - temperature
+
+# Service types to search per port
+service_types:
+  - customs clearance
+  - cold-chain logistics
+  - bonded storage
+  - 3PL
+
+# Ports in scope
+ports:
+  - Jeddah
+  - Salalah

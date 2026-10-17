@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "evolus": {
+      "type": "http",
+      "url": "https://api.evolus.ai/mcp",
+      "headers": {
+        "X-ApiKey": "${EVOLUS_API_KEY}",
+        "X-Application-Id": "${EVOLUS_APP_ID}"
+      }
+    }
+  }
+}

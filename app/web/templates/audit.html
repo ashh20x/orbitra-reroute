@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Audit Log — Orbitra Reroute{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-semibold text-brand-light">Audit Log</h1>
+    <p class="text-brand-light/50 text-sm mt-1">All agent actions — last 100 events</p>
+  </div>
+</div>
+
+{% if not events %}
+<div class="card p-10 text-center text-brand-light/30 text-sm">No audit events yet.</div>
+{% else %}
+<div class="card overflow-hidden">
+  <table class="w-full text-xs">
+    <thead>
+      <tr class="border-b border-brand-teal/20">
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Time</th>
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Event</th>
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Shipment</th>
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Model</th>
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Latency</th>
+        <th class="text-left py-2 px-4 text-brand-light/40 font-medium">Evolus</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for e in events %}
+      <tr class="border-b border-brand-teal/10 hover:bg-brand-teal/5">
+        <td class="py-2 px-4 text-brand-light/40 whitespace-nowrap">{{ e.occurred_at.strftime("%d %b %H:%M:%S") if e.occurred_at else "—" }}</td>
+        <td class="py-2 px-4 text-brand-light font-medium">{{ e.event_type }}</td>
+        <td class="py-2 px-4">
+          {% if e.shipment_id %}
+          <a href="/shipment/{{ e.shipment_id }}" class="text-brand-teal hover:text-brand-mint">{{ e.shipment_id[:8] }}</a>
+          {% else %}—{% endif %}
+        </td>
+        <td class="py-2 px-4 text-brand-light/50">{{ e.model_used or "—" }}</td>
+        <td class="py-2 px-4 text-brand-light/50">{{ e.latency_ms ~ "ms" if e.latency_ms else "—" }}</td>
+        <td class="py-2 px-4">
+          {% if e.evolus_call %}<span class="text-brand-mint">✓</span>{% else %}<span class="text-brand-light/20">—</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+{% endif %}
+{% endblock %}

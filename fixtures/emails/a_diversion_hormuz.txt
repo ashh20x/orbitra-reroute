@@ -1,0 +1,42 @@
+From: ops@fictionalcarrier-global.example
+To: imports@orbitra-demo.example
+Subject: URGENT: MV NORTHERN FROST — Diversion Notice — Strait of Hormuz Restriction
+Date: Fri, 17 Oct 2026 09:14:00 +0000
+Message-ID: <fixture-a-hormuz-001@fictionalcarrier.example>
+
+Dear Trade Operations Team,
+
+We regret to inform you that MV NORTHERN FROST (IMO: 9FICTIONAL01) has been issued a
+formal diversion notice effective immediately.
+
+SHIPMENT DETAILS:
+  Vessel: MV NORTHERN FROST
+  Bill of Lading: FICT2026BL00001
+  Carrier: Fictional Carrier Global
+  Cargo: 20 x 40ft reefer containers — frozen poultry (whole birds, -18°C)
+  Origin: Port of Santos, Brazil
+  Original Destination: Jebel Ali, UAE
+  Original ETA Jebel Ali: 28 Oct 2026
+
+DISRUPTION:
+Following the security advisory issued by maritime authorities on 15 Oct 2026,
+transit through the Strait of Hormuz has been suspended for commercial reefer
+vessels until further notice. All vessels bound for Jebel Ali are required to
+avoid the Strait and await revised routing instructions.
+
+IMPACT:
+  Revised ETA (holding position): TBD — estimated 6–10 day delay
+  Cold-chain risk: Elevated — reefer gensets confirmed operational, fuel sufficient
+    for 14 additional days at current draw
+
+IMMEDIATE ACTION REQUIRED:
+Please confirm your preferred alternative port of call. We are coordinating with
+Jeddah Islamic Port (Bab-el-Mandeb route) and Port of Salalah (Arabian Sea — outside
+Hormuz) for expedited pre-registration.
+
+Contact: Captain O. Andersen — ops@fictionalcarrier-global.example
+
+Regards,
+Fleet Operations
+Fictional Carrier Global
+[SYNTHETIC — fictional vessel and B/L for demo purposes only]

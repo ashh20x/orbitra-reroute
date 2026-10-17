@@ -1,0 +1,37 @@
+# Knowledge base sources for the Evolus reroute-kb library
+# Every source must be recorded here before import.
+
+sources:
+  - id: brief-v1.1
+    title: "Pre Re-route Agent Execution v1.1 — Evolus AI Agent Implementation Brief"
+    type: internal_brief
+    path: docs/Pre_Re-route_Agent_Execution_v1.1.pdf
+    imported: false
+
+  - id: jeddah-port-guide
+    title: "Jeddah Islamic Port — Operator Guide"
+    type: port_guide
+    url: "https://www.jeddahport.com.sa"
+    imported: false
+    note: "TODO P1: import public port guide page"
+
+  - id: salalah-port-guide
+    title: "Port of Salalah — Commercial Information"
+    type: port_guide
+    url: "https://www.salalahport.com"
+    imported: false
+    note: "TODO P1: import public port guide page"
+
+  - id: sfda-cold-chain
+    title: "SFDA Requirements for Imported Frozen Poultry"
+    type: regulatory
+    url: "https://www.sfda.gov.sa"
+    imported: false
+    note: "TODO P1: import SFDA poultry import requirements"
+
+  - id: worlds-json
+    title: "World Labs Cached Worlds — Jeddah, Salalah, Jebel Ali"
+    type: spatial_registry
+    path: config/worlds.json
+    imported: false
+    note: "TODO W1: import once marble_url values are filled in"

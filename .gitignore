@@ -1,0 +1,54 @@
+# Secrets — never commit
+.env
+*.key
+*.pem
+secrets/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+.eggs/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# uv
+.python-version
+
+# Models (large artifacts — store in object storage for prod)
+models/*.pkl
+models/*.pt
+models/*.bin
+
+# Data cache and generated outputs
+data/gdelt_cache/
+data/workbooks/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SQLite database
+*.db
+*.sqlite
+
+# Docker
+*.dockerignore
+
+# Submissions / video (large binaries)
+submission/*.mp4
+submission/*.mov

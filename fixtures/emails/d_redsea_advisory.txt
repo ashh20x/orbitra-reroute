@@ -1,0 +1,47 @@
+From: advisories@maritime-security-demo.example
+To: imports@orbitra-demo.example
+Subject: Maritime Security Advisory — Red Sea / Bab-el-Mandeb — Level 3 Alert
+Date: Fri, 17 Oct 2026 07:00:00 +0000
+Message-ID: <fixture-d-redsea-001@maritime-security-demo.example>
+
+MARITIME SECURITY ADVISORY — LEVEL 3
+Issued by: Demo Maritime Security Intelligence (DMSI)
+Area: Red Sea / Bab-el-Mandeb Strait
+Valid: 17 Oct 2026 00:00 UTC — 24 Oct 2026 23:59 UTC
+
+SUMMARY:
+Multiple credible threat indicators have been identified in the southern Red Sea
+and Bab-el-Mandeb Strait (12°N–15°N). Commercial vessels transiting this corridor
+are advised to exercise extreme caution or consider alternative routing.
+
+SPECIFIC RISKS:
+- Unmanned surface vessel (USV) activity reported in grid refs BAB-04 and BAB-07
+- Two commercial vessels sustained damage from projectiles in the past 72 hours
+- Naval coalition escorts are at capacity; vessels cannot be guaranteed coverage
+- Insurance war risk premiums for Red Sea transit have increased 340% (indicative)
+
+AFFECTED ROUTES:
+- Santos / South American East Coast → Jeddah Islamic Port → Suez Canal
+- Any vessel approaching Bab-el-Mandeb from south (Gulf of Aden direction)
+
+AFFECTED VESSEL ON ORBITRA ACCOUNT:
+  Vessel: MV DUBAI STAR
+  Bill of Lading (B/L): OMDB2026BL00412
+  Carrier: Gulf Reefer Lines
+  Cargo: 22 x 40ft reefer containers — frozen poultry (-18°C)
+  Port of Origin: Santos, Brazil
+  Original Destination: Jebel Ali, UAE
+  Current Position: Gulf of Aden, holding pending route clearance
+
+RECOMMENDED ALTERNATIVE:
+Cape of Good Hope routing, or diversion to Port of Salalah (outside Bab-el-Mandeb,
+Arabian Sea direct approach). Fujairah and Khor Fakkan also accessible via Strait
+of Hormuz if Hormuz remains clear.
+
+NOTE: If both Hormuz AND Bab-el-Mandeb are restricted simultaneously, escalate
+immediately to senior Trade Operations and Risk Management.
+
+NEXT UPDATE: 18 Oct 2026 06:00 UTC
+
+Demo Maritime Security Intelligence | advisories@maritime-security-demo.example
+[SYNTHETIC — for demo purposes only]

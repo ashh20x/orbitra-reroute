@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Orbitra Reroute{% endblock %}</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/htmx.org@1.9.12"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              dark:  '#071216',
+              teal:  '#2C838C',
+              mint:  '#2CECC0',
+              light: '#E8F0F0',
+            }
+          },
+          fontFamily: {
+            heading: ['"Clash Grotesk"', 'system-ui', 'sans-serif'],
+            body:    ['Inter', 'system-ui', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Clash Grotesk + Inter via Google Fonts CDN approximation -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    body { background-color: #071216; color: #E8F0F0; font-family: 'Inter', system-ui, sans-serif; }
+    h1,h2,h3,h4 { font-family: system-ui, sans-serif; letter-spacing: -0.02em; }
+    .card { background: rgba(44,131,140,0.08); border: 1px solid rgba(44,131,140,0.25); border-radius: 0.75rem; }
+    .badge-low      { background: rgba(44,236,192,0.15); color: #2CECC0; }
+    .badge-medium   { background: rgba(250,200,80,0.15); color: #FAC850; }
+    .badge-high     { background: rgba(250,100,60,0.15); color: #FA643C; }
+    .badge-critical { background: rgba(220,50,50,0.20); color: #DC3232; }
+    .btn-primary { background: #2C838C; color: #E8F0F0; border-radius: 0.5rem; padding: 0.5rem 1.25rem; font-weight: 500; transition: background 0.15s; }
+    .btn-primary:hover { background: #2CECC0; color: #071216; }
+    .btn-ghost { border: 1px solid rgba(44,131,140,0.4); color: #2C838C; border-radius: 0.5rem; padding: 0.5rem 1.25rem; }
+  </style>
+</head>
+<body class="min-h-screen">
+  <!-- Nav -->
+  <nav class="border-b border-brand-teal/20 px-6 py-3 flex items-center gap-6">
+    <span class="text-brand-mint font-semibold text-lg tracking-tight">Orbitra Reroute</span>
+    <a href="/" class="text-brand-light/60 hover:text-brand-mint text-sm">Inbox</a>
+    <a href="/approvals" class="text-brand-light/60 hover:text-brand-mint text-sm">Approvals</a>
+    <a href="/audit" class="text-brand-light/60 hover:text-brand-mint text-sm">Audit</a>
+    <a href="/amd" class="text-brand-light/60 hover:text-brand-mint text-sm">AMD Panel</a>
+    <span class="ml-auto text-xs text-brand-light/30">AMD Hackathon Act III · Reinvent Commerce</span>
+  </nav>
+  <main class="px-6 py-8 max-w-6xl mx-auto">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

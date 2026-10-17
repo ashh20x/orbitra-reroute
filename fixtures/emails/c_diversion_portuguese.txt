@@ -1,0 +1,40 @@
+From: operacoes@transportes-ficticio-brasil.example
+To: imports@orbitra-demo.example
+Subject: URGENTE: MV ESTRELA DO SUL — Aviso de Desvio — Restrições no Estreito de Ormuz
+Date: Fri, 17 Oct 2026 13:45:00 +0000
+Message-ID: <fixture-c-portuguese-001@transportes-ficticio-brasil.example>
+
+Prezada Equipe de Operações Comerciais,
+
+Informamos com urgência que o navio MV ESTRELA DO SUL (IMO: 9FICT00002) recebeu
+aviso formal de desvio de rota com efeito imediato.
+
+DETALHES DO EMBARQUE:
+  Navio: MV ESTRELA DO SUL
+  Conhecimento de Embarque (B/L): BRAS2026BL00099
+  Armador: Transportes Fictício Brasil
+  Carga: 18 contêineres reefer de 40 pés — frango congelado inteiro (-18°C)
+  Porto de Origem: Porto de Santos, Brasil
+  Destino Original: Jebel Ali, EAU
+  ETA Original em Jebel Ali: 30 de outubro de 2026
+
+PERTURBAÇÃO:
+Em razão das recentes restrições de segurança no Estreito de Ormuz, o trânsito de
+navios frigoríficos comerciais foi suspenso. O navio está aguardando instruções de
+roteamento revisadas em posição de espera fora do estreito.
+
+IMPACTO ESTIMADO:
+  Novo ETA: A confirmar — estimativa de 5 a 8 dias de atraso
+  Temperatura da carga: Dentro dos parâmetros (-18°C confirmado)
+  Risco para a cadeia de frio: Elevado devido ao prazo adicional
+
+PORTOS ALTERNATIVOS SUGERIDOS:
+  1. Porto de Salalah, Omã (fora do Estreito — Oceano Índico / Mar da Arábia)
+  2. Porto Islâmico de Jeddah, Arábia Saudita (via Bab-el-Mandeb — verificar status)
+
+Aguardamos confirmação da sua preferência de porto alternativo com urgência.
+
+Atenciosamente,
+Departamento de Operações
+Transportes Fictício Brasil
+[SINTÉTICO — navio e B/L fictícios apenas para fins de demonstração]

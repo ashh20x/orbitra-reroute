@@ -1,0 +1,27 @@
+From: billing@office-supplies-demo.example
+To: imports@orbitra-demo.example
+Subject: Invoice #INV-2026-8841 — Office Supplies — Payment Due 31 Oct 2026
+Date: Fri, 17 Oct 2026 10:15:00 +0000
+Message-ID: <fixture-e-noise-001@office-supplies-demo.example>
+
+Dear Accounts Payable,
+
+Please find attached Invoice #INV-2026-8841 for office supplies delivered on
+12 Oct 2026. Payment is due by 31 Oct 2026.
+
+  Items:
+    - A4 Paper (5 reams) .............. $24.50
+    - Ballpoint pens (box of 12) ...... $8.99
+    - Sticky notes (pack of 6) ........ $6.50
+    - Stapler + staples ............... $14.99
+    TOTAL: $54.98
+
+Please remit payment to our account at Demo Bank. Reference INV-2026-8841.
+
+Thank you for your business.
+
+Best regards,
+Billing Department
+Demo Office Supplies Ltd
+billing@office-supplies-demo.example
+[SYNTHETIC — irrelevant noise email for demo purposes only]

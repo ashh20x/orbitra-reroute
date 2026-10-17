@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% block title %}Approvals — Orbitra Reroute{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-8">
+  <div>
+    <h1 class="text-2xl font-semibold text-brand-light">Approvals Queue</h1>
+    <p class="text-brand-light/50 text-sm mt-1">Pending Trade Ops notifications awaiting human sign-off</p>
+  </div>
+  <a href="/" class="btn-ghost text-sm">← Inbox</a>
+</div>
+
+{% if not drafts %}
+<div class="card p-10 text-center text-brand-light/30 text-sm">
+  No pending approvals. All clear.
+</div>
+{% else %}
+<div class="space-y-4">
+  {% for item in drafts %}
+  {% set d = item.draft %}
+  {% set s = item.shipment %}
+  <div class="card p-5" id="draft-{{ d.id }}">
+    <div class="flex items-start gap-4">
+      <!-- Risk badge -->
+      {% if s and s.risk_level %}
+      <span class="badge-{{ s.risk_level|lower }} text-xs px-2 py-0.5 rounded-full font-medium mt-0.5 shrink-0">
+        {{ s.risk_level }}
+      </span>
+      {% endif %}
+
+      <div class="flex-1 min-w-0">
+        <p class="text-brand-light font-medium text-sm truncate">{{ d.subject }}</p>
+        <div class="flex gap-4 mt-1 text-xs text-brand-light/40">
+          {% if s %}
+          <span>{{ s.vessel_name or "Unknown vessel" }}</span>
+          <span>·</span>
+          <span>B/L {{ s.bill_of_lading or "—" }}</span>
+          {% if s.recommended_port %}
+          <span>·</span>
+          <span class="text-brand-mint">→ {{ s.recommended_port }}</span>
+          {% endif %}
+          {% endif %}
+          <span>·</span>
+          <span>{{ d.created_at.strftime("%d %b %Y %H:%M") if d.created_at else "—" }}</span>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex gap-2 shrink-0">
+        <a href="/shipment/{{ d.shipment_id }}" class="btn-ghost text-xs py-1 px-3">
+          Details
+        </a>
+        <button class="text-xs py-1 px-3 rounded-md bg-red-900/30 border border-red-700/40 text-red-400 hover:bg-red-900/50 transition-colors"
+                hx-post="/approvals/{{ d.id }}/reject"
+                hx-target="#draft-{{ d.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Reject this draft? The Gmail draft will be deleted.">
+          Reject
+        </button>
+        <button class="btn-primary text-xs py-1 px-3"
+                hx-post="/approvals/{{ d.id }}/approve"
+                hx-target="#draft-{{ d.id }}"
+                hx-swap="outerHTML"
+                hx-confirm="Approve and send this notification?">
+          Approve &amp; Send
+        </button>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
