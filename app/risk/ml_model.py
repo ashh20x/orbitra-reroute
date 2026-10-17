@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import logging
 import pathlib
+from typing import Any
 
 from app.domain.cdm import BlockageClassification, BlockagePrediction, ChokePointFeatures
 
@@ -44,11 +45,42 @@ def _load_model() -> Any:
 
 async def predict_blockage(features: ChokePointFeatures) -> BlockagePrediction:
     """Run the ML classifier. Falls back to rules if model not loaded."""
-    raise NotImplementedError(
-        "TODO Stage2/Ericka: "
-        "1. Call _load_model() "
-        "2. Build feature vector from ChokePointFeatures "
-        "3. model.predict_proba([vector]) → probability "
-        "4. Return BlockagePrediction with model_used='xgboost' or 'lstm'. "
-        "If model unavailable, use a simple rules fallback and set model_used='fallback_rules'."
+    model = _load_model()
+
+    vessel_count = features.vessel_count if features.vessel_count is not None else 100
+    goldstein_score = features.goldstein_score if features.goldstein_score is not None else 0.0
+    news_risk_score = features.news_risk_score if features.news_risk_score is not None else 5.0
+    vector = [[vessel_count, goldstein_score, news_risk_score]]
+
+    if model is not None:
+        prob = float(model.predict_proba(vector)[0][1])
+        model_used = "xgboost"
+    else:
+        prob = 0.0
+        if news_risk_score >= 7:
+            prob += 0.3
+        if goldstein_score <= -3:
+            prob += 0.25
+        if features.vessel_count is not None and features.vessel_count < 80:
+            prob += 0.2
+        prob = min(prob, 1.0)
+        model_used = "fallback_rules"
+
+    classification = (
+        BlockageClassification.BLOCKED if prob >= 0.5 else BlockageClassification.NOT_BLOCKED
+    )
+    confidence = min(abs(prob - 0.5) * 2, 1.0)
+
+    logger.info(
+        "predict_blockage: chokepoint=%s prob=%.3f model=%s",
+        features.chokepoint, prob, model_used,
+    )
+
+    return BlockagePrediction(
+        chokepoint=features.chokepoint,
+        probability=prob,
+        classification=classification,
+        model_used=model_used,
+        confidence=confidence,
+        features_used=features,
     )
