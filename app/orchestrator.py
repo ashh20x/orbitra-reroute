@@ -427,23 +427,33 @@ async def _send_approval_request(
     draft_type_label: str,
     vessel_name: str,
     recommended_port: str,
+    extra_rows: list[tuple[str, str]] | None = None,
 ) -> None:
     """Send an email to Trade Ops asking them to reply APPROVE or REJECT for a pending draft."""
-    body_html = f"""<!DOCTYPE html><html><body style="background:#071216;color:#E8F0F0;font-family:Arial,sans-serif;padding:24px;">
+    extra_html = ""
+    for label, value in (extra_rows or []):
+        extra_html += f'<tr><td style="color:#888;padding:3px 14px 3px 0;">{label}</td><td style="color:#E8F0F0;font-weight:600;">{value}</td></tr>'
+
+    body_html = f"""<!DOCTYPE html><html><body style="background:#071216;color:#E8F0F0;font-family:Arial,sans-serif;padding:24px;max-width:600px;">
+  <div style="border-bottom:2px solid #2C838C;padding-bottom:10px;margin-bottom:16px;">
+    <span style="font-size:11px;color:#2C838C;text-transform:uppercase;letter-spacing:.08em;">Orbitra Reroute · AI Agent Draft</span>
+  </div>
   <p style="color:#2CECC0;font-weight:600;font-size:15px;margin:0 0 12px;">Draft ready for approval — {draft_type_label}</p>
-  <table style="font-size:13px;border-collapse:collapse;margin-bottom:16px;">
-    <tr><td style="color:#888;padding:3px 14px 3px 0;">Vessel</td><td style="color:#E8F0F0;font-weight:600;">{vessel_name}</td></tr>
-    <tr><td style="color:#888;padding:3px 14px 3px 0;">Diversion Port</td><td style="color:#2CECC0;font-weight:600;">{recommended_port}</td></tr>
-    <tr><td style="color:#888;padding:3px 14px 3px 0;">Draft type</td><td style="color:#E8F0F0;">{draft_type_label}</td></tr>
+  <table style="font-size:13px;border-collapse:collapse;margin-bottom:16px;width:100%;">
+    <tr><td style="color:#888;padding:4px 16px 4px 0;white-space:nowrap;">Vessel</td><td style="color:#E8F0F0;font-weight:600;">{vessel_name}</td></tr>
+    <tr><td style="color:#888;padding:4px 16px 4px 0;white-space:nowrap;">Diversion Port</td><td style="color:#2CECC0;font-weight:600;">{recommended_port}</td></tr>
+    {extra_html}
   </table>
   <div style="background:#0d1d20;border:1px solid rgba(44,131,140,0.4);border-radius:6px;padding:14px 18px;margin:12px 0;">
-    <p style="color:#2CECC0;font-weight:600;font-size:13px;margin:0 0 6px;">Reply to this email:</p>
-    <p style="color:#aaa;font-size:12px;margin:0;">
-      Reply <strong style="color:#2CECC0;font-size:14px;">APPROVE</strong> to send this draft.<br>
-      Reply <strong style="color:#FA643C;font-size:14px;">REJECT</strong> to discard it.
+    <p style="color:#2CECC0;font-weight:600;font-size:13px;margin:0 0 8px;">Action required — reply to this email:</p>
+    <p style="color:#ccc;font-size:13px;margin:0 0 4px;">
+      Reply <strong style="color:#2CECC0;font-size:15px;">APPROVE</strong> to send this draft to the recipient.
+    </p>
+    <p style="color:#ccc;font-size:13px;margin:0;">
+      Reply <strong style="color:#FA643C;font-size:15px;">REJECT</strong> to discard it.
     </p>
   </div>
-  <p style="font-size:11px;color:#555;margin-top:16px;">Orbitra Reroute AI Agent · AMD Hackathon Act III</p>
+  <p style="font-size:11px;color:#555;margin-top:16px;">Orbitra Reroute AI Agent · AMD Hackathon Act III<br>Powered by AMD Token Factory + Evolus</p>
 </body></html>"""
     try:
         from app.integrations.gmail import send_message
@@ -828,12 +838,23 @@ async def run(shipment: Shipment, signal: DisruptionSignal) -> str:
     )
 
     # ── Step 9: Notify Trade Ops by email so they can reply APPROVE/REJECT ───
+    cost_summary = ""
+    if cost:
+        cost_summary = f"P10 ${cost.p10_usd:,.0f} / P50 ${cost.p50_usd:,.0f} / P90 ${cost.p90_usd:,.0f}"
+
     await _send_approval_request(
         to_email=trade_ops_email,
         subject=subject,
         draft_type_label="Trade Ops Pre-Reroute Notification",
         vessel_name=shipment.vessel_name or "Unknown Vessel",
         recommended_port=assessment.recommended_port or "TBD",
+        extra_rows=[
+            ("Risk Level", assessment.final_level.value),
+            ("Chokepoint", assessment.chokepoint_affected or "—"),
+            ("Route", f"Santos → {assessment.recommended_port or 'TBD'} (diverted from Jebel Ali)"),
+            ("Cost Estimate", cost_summary or "Pending provider quotes"),
+            ("Approving sends", "Pre-reroute alert + workbook to Trade Ops"),
+        ],
     )
 
     logger.info(
