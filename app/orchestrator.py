@@ -572,15 +572,22 @@ async def process_email(message: dict) -> str:
             logger.warning("Translation failed (non-fatal): %s", exc)
     shipment.source_language = source_language
 
-    # Persist initial record
-    with get_session() as session:
-        row = ShipmentRow(
-            id=shipment.id,
-            gmail_message_id=message_id,
-            state=ProcessState.RECEIVED.value,
-        )
-        session.add(row)
-        session.commit()
+    # Persist initial record — unique constraint on gmail_message_id prevents
+    # duplicate processing if APScheduler and manual trigger race each other.
+    try:
+        with get_session() as session:
+            row = ShipmentRow(
+                id=shipment.id,
+                gmail_message_id=message_id,
+                state=ProcessState.RECEIVED.value,
+            )
+            session.add(row)
+            session.commit()
+    except Exception as exc:
+        if "UNIQUE" in str(exc).upper():
+            logger.warning("Duplicate message_id %s — skipping (race condition)", message_id)
+            return "duplicate_skipped"
+        raise
 
     _audit(shipment.id, "email_received", {
         "subject": subject,

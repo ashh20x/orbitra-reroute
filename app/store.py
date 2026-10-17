@@ -24,7 +24,7 @@ engine = create_engine(_DATABASE_URL, echo=False)
 class ShipmentRow(SQLModel, table=True):
     __tablename__ = "shipments"
     id: str = Field(primary_key=True)
-    gmail_message_id: str | None = None
+    gmail_message_id: str | None = Field(default=None, unique=True, index=True)
     vessel_name: str | None = None
     bill_of_lading: str | None = None
     state: str = "received"
