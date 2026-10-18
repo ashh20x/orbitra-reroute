@@ -1,42 +1,68 @@
 From: ops@fictionalcarrier-global.example
 To: imports@orbitra-demo.example
 Subject: URGENT: MV NORTHERN FROST — Diversion Notice — Strait of Hormuz Restriction
-Date: Fri, 17 Oct 2026 09:14:00 +0000
+Date: Sat, 18 Oct 2026 07:42:00 +0000
 Message-ID: <fixture-a-hormuz-001@fictionalcarrier.example>
 
 Dear Trade Operations Team,
 
-We regret to inform you that MV NORTHERN FROST (IMO: 9FICTIONAL01) has been issued a
-formal diversion notice effective immediately.
+We are writing with an urgent diversion notice for MV NORTHERN FROST, which has
+just cleared the Cape of Good Hope and is now committed to the Indian Ocean leg
+of her voyage to Jebel Ali.
 
 SHIPMENT DETAILS:
-  Vessel: MV NORTHERN FROST
-  Bill of Lading: FICT2026BL00001
-  Carrier: Fictional Carrier Global
-  Cargo: 20 x 40ft reefer containers — frozen poultry (whole birds, -18°C)
-  Origin: Port of Santos, Brazil
+  Vessel:              MV NORTHERN FROST
+  IMO:                 9FICTIONAL01
+  Bill of Lading:      FICT2026BL00001
+  Carrier:             Fictional Carrier Global
+  Cargo:               20 x 40ft reefer containers — frozen whole poultry, -18°C
+  Origin:              Port of Santos, Brazil (departed 24 Sep 2026)
   Original Destination: Jebel Ali, UAE
-  Original ETA Jebel Ali: 28 Oct 2026
+  Current Position:    34°18'S  25°52'E — approx. 180nm east of Cape of Good Hope
+  Original ETA Jebel Ali: 28 Oct 2026 (10 days)
 
 DISRUPTION:
-Following the security advisory issued by maritime authorities on 15 Oct 2026,
-transit through the Strait of Hormuz has been suspended for commercial reefer
-vessels until further notice. All vessels bound for Jebel Ali are required to
-avoid the Strait and await revised routing instructions.
+A security advisory issued by the UAE Maritime Authority on 17 Oct 2026 has
+suspended transit through the Strait of Hormuz for all commercial reefer vessels
+until further notice. MV NORTHERN FROST cannot proceed to Jebel Ali on her
+current routing.
 
-IMPACT:
-  Revised ETA (holding position): TBD — estimated 6–10 day delay
-  Cold-chain risk: Elevated — reefer gensets confirmed operational, fuel sufficient
-    for 14 additional days at current draw
+This notice was received as the vessel rounded the Cape of Good Hope. The vessel
+has not yet entered the Indian Ocean transit corridor and can still divert via
+the Red Sea to an alternative Gulf port with minimal additional steaming time.
+
+COLD-CHAIN STATUS:
+  Reefer gensets: All 20 units operational, logged -18°C ±0.5°C throughout voyage
+  Estimated remaining reefer fuel: 18 days at current draw
+  No cold-chain breach recorded
+
+RECOMMENDED ALTERNATIVE: JEDDAH ISLAMIC PORT
+Our operations desk recommends diversion to Jeddah Islamic Port, Saudi Arabia
+(Bab-el-Mandeb / Red Sea routing). Key factors:
+
+  • Routing advantage: From current position, Jeddah via Red Sea adds only
+    1–2 days vs. original ETA — significantly less deviation than Arabian Sea
+    alternatives. Vessel does not approach Hormuz at any point.
+  • ETA Jeddah: 30–31 Oct 2026 (revised)
+  • Cold-chain buffer: 18-day reefer reserve provides adequate margin
+  • Port capability: Jeddah Islamic Port operates a dedicated reefer terminal
+    (Zone 5, Gate 9) with -20°C cold storage and direct highway link to
+    Riyadh, Dammam, and onward Gulf markets.
+
+Alternative: Port of Salalah (Oman) is available but adds 3–4 additional transit
+days and is better suited for general cargo transshipment. We do not recommend
+Salalah for time-sensitive reefer cargo.
 
 IMMEDIATE ACTION REQUIRED:
-Please confirm your preferred alternative port of call. We are coordinating with
-Jeddah Islamic Port (Bab-el-Mandeb route) and Port of Salalah (Arabian Sea — outside
-Hormuz) for expedited pre-registration.
+Please confirm your preferred alternative port at the earliest opportunity.
+We must issue revised sailing orders within 24 hours to avoid the vessel
+entering the Hormuz approach corridor. Delay beyond this window will force
+the vessel to heave-to in the Gulf of Aden at demurrage cost.
 
 Contact: Captain O. Andersen — ops@fictionalcarrier-global.example
+         Fleet Ops Desk — +1-800-000-0000 (24 hr)
 
 Regards,
 Fleet Operations
 Fictional Carrier Global
-[SYNTHETIC — fictional vessel and B/L for demo purposes only]
+[SYNTHETIC — fictional vessel, B/L, and coordinates for demo purposes only]

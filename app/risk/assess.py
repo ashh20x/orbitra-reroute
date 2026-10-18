@@ -100,6 +100,7 @@ async def assess(shipment: Shipment, signal: DisruptionSignal) -> RiskAssessment
                 "carrier_advisory_present": signal.carrier_advisory_present,
                 "severity_keywords": signal.severity_keywords,
                 "diversion_language": signal.diversion_language,
+                "carrier_recommended_port": signal.recommended_port,
             },
             ensure_ascii=False,
         )

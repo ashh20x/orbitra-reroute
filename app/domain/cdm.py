@@ -132,6 +132,7 @@ class DisruptionSignal(BaseModel):
     diversion_language: list[str] = Field(default_factory=list)
     carrier_advisory_present: bool = False
     severity_keywords: list[str] = Field(default_factory=list)
+    recommended_port: str | None = None     # carrier's suggested diversion port
     extracted_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 

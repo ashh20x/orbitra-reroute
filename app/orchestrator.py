@@ -175,6 +175,27 @@ def _keyword_signal(shipment: Shipment) -> DisruptionSignal:
         if match:
             shipment.eta_slip_days = (int(match.group(1)) + int(match.group(2))) // 2
 
+    # Extract carrier's recommended diversion port
+    carrier_recommended: str | None = None
+    _port_keywords = {
+        "Jeddah": ["jeddah"],
+        "Salalah": ["salalah"],
+        "Djibouti": ["djibouti"],
+        "Port Said": ["port said"],
+        "Aqaba": ["aqaba"],
+        "Colombo": ["colombo"],
+    }
+    for port_name, kws in _port_keywords.items():
+        for kw in kws:
+            idx = body.find(kw)
+            if idx >= 0:
+                ctx = body[max(0, idx - 120): idx + 120]
+                if any(w in ctx for w in ("recommend", "suggest", "preferred", "alternative")):
+                    carrier_recommended = port_name
+                    break
+        if carrier_recommended:
+            break
+
     return DisruptionSignal(
         shipment_id=shipment.id,
         signal_type=signal_type,
@@ -184,6 +205,7 @@ def _keyword_signal(shipment: Shipment) -> DisruptionSignal:
         severity_keywords=[
             w for w in ("critical", "urgent", "immediate", "suspended") if w in body
         ],
+        recommended_port=carrier_recommended,
     )
 
 

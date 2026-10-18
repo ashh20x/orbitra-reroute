@@ -102,10 +102,9 @@ async def list_recent_messages(max_results: int = 10, label_ids: list[str] | Non
 async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
     """Return INBOX message stubs (id + threadId only).
 
-    We no longer filter by UNREAD because Gmail does not mark replies to
-    agent-initiated threads as unread — the reply arrives in INBOX but
-    without the UNREAD label.  Deduplication in process_email() and
-    archiving via mark_read() prevent double-processing.
+    We list by label only (no search query) to avoid Gmail's search-index
+    propagation delay.  The server-start timestamp guard is applied after
+    the full message is fetched (internalDate check in get_message).
     """
     service = _get_service()
 
@@ -113,7 +112,6 @@ async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
         res = service.users().messages().list(
             userId="me",
             labelIds=["INBOX"],
-            q=f"after:{_SERVER_START_TS}",
             maxResults=max_results,
         ).execute()
         return res.get("messages", [])
@@ -133,6 +131,9 @@ async def get_message(message_id: str) -> dict[str, Any]:
     raw = await asyncio.get_event_loop().run_in_executor(None, _fetch)
     headers = raw.get("payload", {}).get("headers", [])
 
+    # internalDate is milliseconds since epoch — used for server-start guard
+    internal_date_ms = int(raw.get("internalDate", 0))
+
     return {
         "id": raw["id"],
         "thread_id": raw.get("threadId"),
@@ -144,6 +145,7 @@ async def get_message(message_id: str) -> dict[str, Any]:
         "body": _extract_body(raw.get("payload", {})),
         "label_ids": raw.get("labelIds", []),
         "snippet": raw.get("snippet", ""),
+        "internal_date_ms": internal_date_ms,
     }
 
 

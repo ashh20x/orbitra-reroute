@@ -7,14 +7,14 @@
       "scope": "port",
       "provider_ref": null,
       "title": "Jeddah Islamic Port — Container Terminal & Reefer Yard",
-      "marble_url": "",
+      "marble_url": "https://marble.worldlabs.ai/world/19188796-bafe-4cd9-b55b-e0df96ba499f",
       "thumbnail_url": "",
       "source": "marble_app",
       "prompt": "Jeddah Islamic Port container terminal with reefer yard, bonded warehouses, and truck exit lanes. Saudi Arabia Red Sea coastline. Industrial port infrastructure, cold-chain storage facilities.",
       "input_images": [],
-      "created_at": null,
+      "created_at": "2026-10-18",
       "link_verified_at": null,
-      "_note": "W1: teammate to fill marble_url + thumbnail_url after generating in Marble app"
+      "_note": "W1: marble_url confirmed 2026-10-18"
     },
     {
       "id": "salalah-port-01",
