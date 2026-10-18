@@ -1013,7 +1013,7 @@ async def post_approval_pipeline(shipment_row) -> None:
                 "email",
                 primary_text,
                 secondary_text,
-                options={"mode": "write", "tone": "formal", "language": "en"},
+                options={"mode": "write", "tone": "formal"},
             )
             latency_ms = int((_time.monotonic() - t0) * 1000)
             body_text = evolus_result
@@ -1099,9 +1099,9 @@ async def post_approval_pipeline(shipment_row) -> None:
     try:
         t0 = _time.monotonic()
         finance_result = await run_ai_tool(
-            "summarize",
+            "email",
             summary_text,
-            options={"length": "short", "style": "bullets", "language": "en"},
+            options={"mode": "write", "tone": "formal"},
         )
         latency_ms = int((_time.monotonic() - t0) * 1000)
         finance_body_text = finance_result
@@ -1193,7 +1193,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         compliance_result = await run_ai_tool(
             "email",
             compliance_text,
-            options={"mode": "write", "tone": "formal", "language": "en"},
+            options={"mode": "write", "tone": "formal"},
         )
         latency_ms = int((_time.monotonic() - t0) * 1000)
         compliance_body_text = compliance_result

@@ -137,7 +137,13 @@ async def run_ai_tool(tool: str, text: str, secondary_text: str = "", options: d
         )
         r.raise_for_status()
         result = r.json()
-        return result.get("result") or result.get("text") or str(result)
+        text_out = result.get("output") or result.get("result") or result.get("text") or ""
+        if not text_out:
+            return str(result)
+        # Strip Italian/non-English subject-line prefix that the email tool sometimes emits
+        import re as _re
+        text_out = _re.sub(r"^(?:Oggetto|Soggetto|Betreff|Asunto|Subject)\s*:[^\n]*\n+", "", text_out, flags=_re.IGNORECASE)
+        return text_out.strip()
 
 
 async def list_ai_tools() -> list[dict[str, Any]]:
