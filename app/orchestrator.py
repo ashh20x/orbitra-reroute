@@ -1081,7 +1081,6 @@ async def post_approval_pipeline(shipment_row) -> None:
     # ── Finance digest draft ──────────────────────────────────────────────
     _save_state(shipment_id, "notifying_finance")
     summary_text = (
-        f"[WRITE ENTIRELY IN ENGLISH]\n\n"
         f"Shipment Diversion Summary — Finance Digest\n\n"
         f"Vessel: {vessel_name}\n"
         f"Bill of Lading: {bill_of_lading}\n"
@@ -1170,7 +1169,6 @@ async def post_approval_pipeline(shipment_row) -> None:
     # ── Compliance notes draft ────────────────────────────────────────────
     _save_state(shipment_id, "notifying_compliance")
     compliance_text = (
-        f"[WRITE ENTIRELY IN ENGLISH]\n\n"
         f"Compliance Notification — Shipment Diversion\n\n"
         f"Vessel: {vessel_name}\n"
         f"Bill of Lading: {bill_of_lading}\n"
