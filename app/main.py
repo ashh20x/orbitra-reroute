@@ -119,7 +119,10 @@ async def index(request: Request) -> HTMLResponse:
 
     with get_session() as session:
         rows = session.exec(
-            select(ShipmentRow).order_by(ShipmentRow.received_at.desc()).limit(20)
+            select(ShipmentRow)
+            .where(ShipmentRow.state != "below_threshold")
+            .order_by(ShipmentRow.received_at.desc())
+            .limit(20)
         ).all()
 
     stats = {

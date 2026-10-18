@@ -574,6 +574,19 @@ async def process_email(message: dict) -> str:
         logger.debug("Skipping self-sent email: %s", subject)
         return "self_sent_skipped"
 
+    # ── Early exit: content gate — must look like a disruption notice ─────
+    _DISRUPTION_TERMS = (
+        "diversion", "divert", "reroute", "re-route",
+        "hormuz", "red sea", "bab-el-mandeb", "suez",
+        "advisory", "suspended", "restriction",
+        "reefer", "cold chain", "cold-chain",
+        "bill of lading", "b/l", "vessel", "cargo",
+    )
+    combined_lower = (subject + " " + body[:2000]).lower()
+    if not any(t in combined_lower for t in _DISRUPTION_TERMS):
+        logger.info("Skipping non-disruption email (no keyword match): %s", subject[:80])
+        return "below_threshold"
+
     # ── Early exit: reply-based approval/rejection ─────────────────────────
     # Any "Re:" email is treated as an approval reply attempt.  If no
     # matching pending draft exists we skip it entirely — a stale reply
