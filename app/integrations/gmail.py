@@ -95,13 +95,19 @@ async def list_recent_messages(max_results: int = 10, label_ids: list[str] | Non
 
 
 async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
-    """Return UNREAD INBOX message stubs (id + threadId only)."""
+    """Return INBOX message stubs (id + threadId only).
+
+    We no longer filter by UNREAD because Gmail does not mark replies to
+    agent-initiated threads as unread — the reply arrives in INBOX but
+    without the UNREAD label.  Deduplication in process_email() and
+    archiving via mark_read() prevent double-processing.
+    """
     service = _get_service()
 
     def _fetch() -> list[dict]:
         res = service.users().messages().list(
             userId="me",
-            labelIds=["INBOX", "UNREAD"],
+            labelIds=["INBOX"],
             maxResults=max_results,
         ).execute()
         return res.get("messages", [])
@@ -224,14 +230,19 @@ async def send_message(
 
 
 async def mark_read(message_id: str) -> None:
-    """Remove UNREAD label so the message isn't polled again."""
+    """Archive a processed message — removes INBOX and UNREAD labels.
+
+    Archiving (removing INBOX) ensures the message won't be returned by
+    subsequent polls even when Gmail omits the UNREAD label (e.g. for
+    replies to agent-initiated threads).
+    """
     service = _get_service()
 
     def _modify() -> None:
         service.users().messages().modify(
             userId="me",
             id=message_id,
-            body={"removeLabelIds": ["UNREAD"]},
+            body={"removeLabelIds": ["INBOX", "UNREAD"]},
         ).execute()
 
     await asyncio.get_event_loop().run_in_executor(None, _modify)
