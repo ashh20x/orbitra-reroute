@@ -1036,6 +1036,12 @@ async def post_approval_pipeline(shipment_row) -> None:
                 draft_type_label=f"Provider Outreach — {provider_name}",
                 vessel_name=vessel_name,
                 recommended_port=recommended_port,
+                extra_rows=[
+                    ("Provider", provider_name),
+                    ("Service", service_type),
+                    ("Route", f"Santos → {recommended_port} (diverted from Jebel Ali)"),
+                    ("Approving sends", f"Cold-chain capacity request to {provider_name}"),
+                ],
             )
         except Exception as exc:
             logger.error("Failed to create provider outreach draft for %s: %s", provider_name, exc)
@@ -1118,6 +1124,12 @@ async def post_approval_pipeline(shipment_row) -> None:
             draft_type_label="Finance Digest",
             vessel_name=vessel_name,
             recommended_port=recommended_port,
+            extra_rows=[
+                ("B/L Number", bill_of_lading),
+                ("Risk Level", risk_level),
+                ("Route", f"Santos → {recommended_port} (diverted from Jebel Ali)"),
+                ("Approving sends", "Finance team budget contingency alert + ETA update request"),
+            ],
         )
     except Exception as exc:
         logger.error("Failed to create finance digest draft: %s", exc)
@@ -1204,6 +1216,12 @@ async def post_approval_pipeline(shipment_row) -> None:
             draft_type_label="Compliance Notes",
             vessel_name=vessel_name,
             recommended_port=recommended_port,
+            extra_rows=[
+                ("B/L Number", bill_of_lading),
+                ("Diversion Port", recommended_port),
+                ("Risk Level", risk_level),
+                ("Approving sends", "Compliance alert — SFDA permits, halal certs, customs notification"),
+            ],
         )
     except Exception as exc:
         logger.error("Failed to create compliance notes draft: %s", exc)
