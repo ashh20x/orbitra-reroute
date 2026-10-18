@@ -152,11 +152,13 @@ async def create_draft(
     subject: str,
     body_html: str,
     attachments: list[tuple[str, bytes, str]] | None = None,
+    cc: list[str] | None = None,
 ) -> str:
     """Create a Gmail draft and return the draft_id.
 
-    In DEMO_MODE all recipients are replaced with DEMO_SINK_EMAIL and
-    the subject is prefixed with [DEMO].
+    In DEMO_MODE all To recipients are replaced with DEMO_SINK_EMAIL and
+    the subject is prefixed with [DEMO]. CC addresses are kept as-is so
+    the email header looks realistic even if they don't exist.
     """
     service = _get_service()
     recipients  = [_DEMO_SINK] if (_DEMO_MODE and _DEMO_SINK) else to
@@ -166,6 +168,8 @@ async def create_draft(
     msg["to"]      = ", ".join(recipients)
     msg["from"]    = _MONITOR
     msg["subject"] = final_subj
+    if cc:
+        msg["cc"] = ", ".join(cc)
 
     alt = MIMEMultipart("alternative")
     alt.attach(MIMEText(body_html, "html", "utf-8"))

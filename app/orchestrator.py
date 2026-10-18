@@ -1111,6 +1111,7 @@ async def post_approval_pipeline(shipment_row) -> None:
             to=[sink_email],
             subject=finance_subject,
             body_html=finance_html,
+            cc=["finance@orbitralab.com"],
         )
         with get_session() as session:
             draft_row = DraftRow(
@@ -1203,6 +1204,7 @@ async def post_approval_pipeline(shipment_row) -> None:
             to=[sink_email],
             subject=compliance_subject,
             body_html=compliance_html,
+            cc=["compliance@orbitralab.com"],
         )
         with get_session() as session:
             draft_row = DraftRow(
