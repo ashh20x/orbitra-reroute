@@ -86,18 +86,18 @@
 {% if shipment.cost_p10_usd %}
 <!-- Cost forecast -->
 <div class="card p-5 mb-6">
-  <h2 class="text-brand-teal text-xs uppercase tracking-wide mb-4">Reroute Cost Forecast — Monte Carlo P10 / P50 / P90</h2>
+  <h2 class="text-brand-teal text-xs uppercase tracking-wide mb-4">Reroute Cost Forecast</h2>
   <div class="grid grid-cols-3 gap-6 mb-4">
     <div class="text-center">
-      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">P10 Optimistic</p>
+      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Optimistic</p>
       <p class="text-2xl font-bold text-brand-mint">${{ "{:,.0f}".format(shipment.cost_p10_usd) }}</p>
     </div>
     <div class="text-center">
-      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">P50 Expected</p>
+      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Expected</p>
       <p class="text-2xl font-bold text-brand-light">${{ "{:,.0f}".format(shipment.cost_p50_usd) }}</p>
     </div>
     <div class="text-center">
-      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">P90 Conservative</p>
+      <p class="text-brand-light/40 text-xs uppercase tracking-wide mb-1">Conservative</p>
       <p class="text-2xl font-bold" style="color:#FA643C">${{ "{:,.0f}".format(shipment.cost_p90_usd) }}</p>
     </div>
   </div>
@@ -106,12 +106,12 @@
   {% set max_val = shipment.cost_p90_usd %}
   <div class="space-y-2">
     {% for label, val, color in [
-        ("P10", shipment.cost_p10_usd, "#2CECC0"),
-        ("P50", shipment.cost_p50_usd, "#E8F0F0"),
-        ("P90", shipment.cost_p90_usd, "#FA643C")
+        ("Optimistic", shipment.cost_p10_usd, "#2CECC0"),
+        ("Expected", shipment.cost_p50_usd, "#E8F0F0"),
+        ("Conservative", shipment.cost_p90_usd, "#FA643C")
     ] %}
     <div class="flex items-center gap-3 text-xs">
-      <span class="text-brand-light/40 w-8 text-right shrink-0">{{ label }}</span>
+      <span class="text-brand-light/40 w-20 text-right shrink-0">{{ label }}</span>
       <div class="flex-1 bg-brand-teal/10 rounded-full h-4 overflow-hidden">
         <div class="h-4 rounded-full transition-all duration-500"
              style="width:{{ (val / max_val * 100)|round|int }}%; background:{{ color }}; opacity:0.85;"></div>
@@ -123,7 +123,7 @@
 
   {% if shipment.cost_per_container_usd %}
   <p class="text-brand-light/30 text-xs mt-3">
-    Per container (P50): <span class="text-brand-light/60">${{ "{:,.0f}".format(shipment.cost_per_container_usd) }}</span>
+    Per container (expected): <span class="text-brand-light/60">${{ "{:,.0f}".format(shipment.cost_per_container_usd) }}</span>
     &nbsp;·&nbsp; Estimate pending actual quotes
   </p>
   {% endif %}

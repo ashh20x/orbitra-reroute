@@ -218,12 +218,12 @@ def _notification_html(
         )
         cost_html = f"""
 <div style="background:#0d1d20;border:1px solid #2C838C;border-radius:6px;padding:16px 20px;margin:16px 0;">
-  <h3 style="color:#2CECC0;margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Cost Forecast (P10/P50/P90)</h3>
+  <h3 style="color:#2CECC0;margin:0 0 12px;font-size:13px;text-transform:uppercase;letter-spacing:.05em;">Cost Forecast</h3>
   <table style="width:100%;border-collapse:collapse;font-size:13px;">
-    <tr><td style="padding:4px 12px 4px 0;color:#888;">P10 (optimistic)</td><td style="font-weight:600;color:#2CECC0;">${cost.p10_usd:,.0f}</td></tr>
-    <tr><td style="padding:4px 12px 4px 0;color:#888;">P50 (expected)</td><td style="font-weight:600;color:#E8F0F0;">${cost.p50_usd:,.0f}</td></tr>
-    <tr><td style="padding:4px 12px 4px 0;color:#888;">P90 (conservative)</td><td style="font-weight:600;color:#FA643C;">${cost.p90_usd:,.0f}</td></tr>
-    <tr><td style="padding:4px 12px 4px 0;color:#888;">Per container (P50)</td><td style="font-weight:600;">${cost.per_container_p50_usd:,.0f}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#888;">Optimistic</td><td style="font-weight:600;color:#2CECC0;">${cost.p10_usd:,.0f}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#888;">Expected</td><td style="font-weight:600;color:#E8F0F0;">${cost.p50_usd:,.0f}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#888;">Conservative</td><td style="font-weight:600;color:#FA643C;">${cost.p90_usd:,.0f}</td></tr>
+    <tr><td style="padding:4px 12px 4px 0;color:#888;">Per container (expected)</td><td style="font-weight:600;">${cost.per_container_p50_usd:,.0f}</td></tr>
   </table>
   {placeholder_note}
 </div>"""
@@ -853,7 +853,7 @@ async def run(shipment: Shipment, signal: DisruptionSignal) -> str:
     # ── Step 9: Notify Trade Ops by email so they can reply APPROVE/REJECT ───
     cost_summary = ""
     if cost:
-        cost_summary = f"P10 ${cost.p10_usd:,.0f} / P50 ${cost.p50_usd:,.0f} / P90 ${cost.p90_usd:,.0f}"
+        cost_summary = f"Optimistic ${cost.p10_usd:,.0f} / Expected ${cost.p50_usd:,.0f} / Conservative ${cost.p90_usd:,.0f}"
 
     await _send_approval_request(
         to_email=trade_ops_email,
@@ -1069,7 +1069,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         f"Action: Pre-re-route process triggered due to Gulf/Hormuz/Red Sea disruption. "
         f"Shipment originally routed Santos (Brazil) → Jebel Ali (UAE). "
         f"Rerouting to {recommended_port} with reefer cold-chain continuity. "
-        f"Cost estimates (P10/P50/P90) are pending actual provider quotes. "
+        f"Cost estimates (Optimistic/Expected/Conservative) are pending actual provider quotes. "
         f"Additional clearance fees, storage, and feeder vessel costs expected. "
         f"Finance team to initiate budget contingency review and update ETA in TMS."
     )
