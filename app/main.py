@@ -447,12 +447,15 @@ async def gmail_debug() -> JSONResponse:
         from app.integrations.gmail import get_authenticated_user, poll_inbox
         user_info = await get_authenticated_user()
         stubs = await poll_inbox(max_results=10)
+        from app.integrations.gmail import list_recent_messages
+        recent = await list_recent_messages(max_results=10)
         return JSONResponse({
             "authenticated_as": user_info,
             "gmail_monitor_address_env": os.environ.get("GMAIL_MONITOR_ADDRESS", "(not set)"),
             "demo_sink_email_env": os.environ.get("DEMO_SINK_EMAIL", "(not set)"),
             "unread_inbox_count": len(stubs),
             "unread_message_ids": [s["id"] for s in stubs],
+            "recent_messages": recent,
         })
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=500)

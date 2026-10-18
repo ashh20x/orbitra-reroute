@@ -65,6 +65,35 @@ async def get_authenticated_user() -> dict[str, Any]:
     return {"email": result.get("emailAddress"), "messages_total": result.get("messagesTotal")}
 
 
+async def list_recent_messages(max_results: int = 10, label_ids: list[str] | None = None) -> list[dict]:
+    """List recent messages across all labels (or filtered by label_ids)."""
+    service = _get_service()
+
+    def _fetch() -> list[dict]:
+        kwargs: dict = {"userId": "me", "maxResults": max_results}
+        if label_ids:
+            kwargs["labelIds"] = label_ids
+        res = service.users().messages().list(**kwargs).execute()
+        msgs = res.get("messages", [])
+        result = []
+        for m in msgs[:5]:
+            try:
+                full = service.users().messages().get(userId="me", id=m["id"], format="metadata",
+                    metadataHeaders=["Subject", "From", "To"]).execute()
+                headers = {h["name"].lower(): h["value"] for h in full.get("payload", {}).get("headers", [])}
+                result.append({
+                    "id": m["id"],
+                    "labels": full.get("labelIds", []),
+                    "subject": headers.get("subject", ""),
+                    "from": headers.get("from", ""),
+                })
+            except Exception:
+                result.append({"id": m["id"]})
+        return result
+
+    return await asyncio.get_event_loop().run_in_executor(None, _fetch)
+
+
 async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
     """Return UNREAD INBOX message stubs (id + threadId only)."""
     service = _get_service()
