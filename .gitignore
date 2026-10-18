@@ -52,3 +52,7 @@ Thumbs.db
 # Submissions / video (large binaries)
 submission/*.mp4
 submission/*.mov
+
+# Generated instruction source files (keep PDF only)
+lstm_amd_instructions.html
+lstm_amd_instructions.md
