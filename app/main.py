@@ -170,6 +170,7 @@ async def shipment_detail(request: Request, shipment_id: str) -> HTMLResponse:
 # ---------------------------------------------------------------------------
 
 
+@app.get("/inbox/check", include_in_schema=False)
 @app.post("/inbox/check", include_in_schema=False)
 async def check_inbox() -> JSONResponse:
     """Poll Gmail INBOX for UNREAD messages and process each one."""
