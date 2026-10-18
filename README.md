@@ -150,7 +150,7 @@ Gmail ──poll──▶ orchestrator
 
 | Fixture | Email | Outcome |
 |---|---|---|
-| `a` | MV NORTHERN FROST — Hormuz diversion | **Critical** → Salalah |
+| `a` | MV NORTHERN FROST — Hormuz diversion (10 days out, Cape of Good Hope) | **Critical** → Jeddah |
 | `b` | MV ATLANTIC ROSE — ETA slip +7 days | **High** → Salalah |
 | `c` | MV ESTRELA DO SUL — Portuguese diversion | **High** (auto-translated) → Salalah |
 | `d` | MV DUBAI STAR — Red Sea advisory | **Critical** → Salalah |
@@ -217,6 +217,14 @@ fixtures/emails/          5 synthetic disruption emails
 - **Reinvent Commerce** (primary) — service quality, margin impact, inventory availability
 - **Evolus Business Agents on AMD** (partner) — 5 building blocks driven by API
 - **Gemma / Google prize** — Gemma-4-31B-IT as primary inference model
+
+---
+
+---
+
+## Built with
+
+- [Claude Code](https://claude.ai/code) — Anthropic's AI coding assistant, used to design and build the full codebase end-to-end. Every commit is co-authored by Claude Sonnet 4.6.
 
 ---
 
