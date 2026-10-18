@@ -553,6 +553,16 @@ async def process_email(message: dict) -> str:
         return "self_sent_skipped"
 
     # ── Early exit: reply-based approval/rejection ─────────────────────────
+    # Any "Re:" email is treated as an approval reply attempt.  If no
+    # matching pending draft exists we skip it entirely — a stale reply
+    # should never kick off a fresh disruption pipeline.
+    if re.match(r"re:\s*", subject, re.IGNORECASE):
+        reply_result = await _handle_approval_reply(message)
+        if reply_result is not None:
+            return reply_result
+        logger.info("Re: email with no matching pending draft — skipping: %s", subject)
+        return "reply_no_matching_draft"
+
     reply_result = await _handle_approval_reply(message)
     if reply_result is not None:
         return reply_result
