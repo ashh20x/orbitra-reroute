@@ -14,9 +14,14 @@ from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 from typing import Any
 
+import time as _time
+
 _DEMO_MODE = os.environ.get("DEMO_MODE", "true").lower() == "true"
 _DEMO_SINK = os.environ.get("DEMO_SINK_EMAIL", "")
 _MONITOR   = os.environ.get("GMAIL_MONITOR_ADDRESS", "")
+# Only poll messages received after this server process started — prevents
+# stale APPROVE replies from previous test sessions auto-approving new drafts.
+_SERVER_START_TS = int(_time.time())
 
 
 def _get_service() -> Any:
@@ -108,6 +113,7 @@ async def poll_inbox(max_results: int = 20) -> list[dict[str, Any]]:
         res = service.users().messages().list(
             userId="me",
             labelIds=["INBOX"],
+            q=f"after:{_SERVER_START_TS}",
             maxResults=max_results,
         ).execute()
         return res.get("messages", [])
