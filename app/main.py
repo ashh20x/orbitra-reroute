@@ -37,7 +37,7 @@ async def _poll_inbox_job() -> None:
             msg_id = stub["id"]
             try:
                 message = await get_message(msg_id)
-                if message.get("internal_date_ms", 0) < _SERVER_START_TS * 1000:
+                if message.get("internal_date_ms", 0) < (_SERVER_START_TS - 600) * 1000:
                     await mark_read(msg_id)
                     continue
                 await process_email(message)
