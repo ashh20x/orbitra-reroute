@@ -458,8 +458,11 @@ async def _send_approval_request(
     try:
         from app.integrations.gmail import send_message
         await send_message(to=[to_email], subject=subject, body_html=body_html)
+        logger.info("Approval-request notification sent to %s: %s", to_email, subject)
+        _audit(None, "approval_request_sent", {"to": to_email, "subject": subject, "draft_type": draft_type_label})
     except Exception as exc:
-        logger.warning("Failed to send approval-request notification: %s", exc)
+        logger.error("Failed to send approval-request notification to %s: %s", to_email, exc)
+        _audit(None, "approval_request_failed", {"to": to_email, "error": str(exc), "subject": subject})
 
 
 async def _handle_approval_reply(message: dict) -> str | None:
