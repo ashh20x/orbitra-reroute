@@ -965,7 +965,7 @@ async def post_approval_pipeline(shipment_row) -> None:
         contact_website = provider.get("contact_website", "N/A")
 
         primary_text = (
-            f"[WRITE ENTIRELY IN ENGLISH]\n\n"
+            f""
             f"Urgent provider outreach for shipment diversion to {recommended_port}.\n\n"
             f"Vessel: {vessel_name}\n"
             f"Bill of Lading: {bill_of_lading}\n"
@@ -1100,7 +1100,7 @@ async def post_approval_pipeline(shipment_row) -> None:
             evolus_call=True,
         )
 
-    ai_line = "\n\nDrafted by an AI agent; reviewed and approved by Trade Ops."
+    ai_line = "\n\nDrafted by an AI agent; reviewed and approved by Finance."
     finance_html = _html_from_text(finance_body_text + ai_line)
     finance_subject = (
         f"[FINANCE DIGEST] Reroute Alert — {vessel_name} → {recommended_port} ({risk_level})"
@@ -1192,7 +1192,7 @@ async def post_approval_pipeline(shipment_row) -> None:
             evolus_call=True,
         )
 
-    ai_line = "\n\nDrafted by an AI agent; reviewed and approved by Trade Ops."
+    ai_line = "\n\nDrafted by an AI agent; reviewed and approved by Compliance."
     compliance_html = _html_from_text(compliance_body_text + ai_line)
     compliance_subject = (
         f"[COMPLIANCE] Reroute Notification — {vessel_name} Diversion to {recommended_port}"
