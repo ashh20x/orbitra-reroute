@@ -29,7 +29,7 @@ _DEMO_MODE = os.environ.get("DEMO_MODE", "true").lower() == "true"
 async def _poll_inbox_job() -> None:
     """APScheduler job — poll Gmail and process new messages."""
     try:
-        from app.integrations.gmail import _SERVER_START_TS, get_message, mark_read, poll_inbox
+        from app.integrations.gmail import get_message, mark_read, poll_inbox
         from app.orchestrator import process_email
 
         stubs = await poll_inbox(max_results=5)
@@ -37,9 +37,6 @@ async def _poll_inbox_job() -> None:
             msg_id = stub["id"]
             try:
                 message = await get_message(msg_id)
-                if message.get("internal_date_ms", 0) < (_SERVER_START_TS - 600) * 1000:
-                    await mark_read(msg_id)
-                    continue
                 await process_email(message)
                 await mark_read(msg_id)
             except Exception as exc:
@@ -186,7 +183,7 @@ async def shipment_detail(request: Request, shipment_id: str) -> HTMLResponse:
 async def check_inbox() -> JSONResponse:
     """Poll Gmail INBOX for UNREAD messages and process each one."""
     try:
-        from app.integrations.gmail import _SERVER_START_TS, get_message, mark_read, poll_inbox
+        from app.integrations.gmail import get_message, mark_read, poll_inbox
         from app.orchestrator import process_email
 
         stubs = await poll_inbox(max_results=5)
@@ -198,10 +195,6 @@ async def check_inbox() -> JSONResponse:
             msg_id = stub["id"]
             try:
                 message = await get_message(msg_id)
-                if message.get("internal_date_ms", 0) < _SERVER_START_TS * 1000:
-                    await mark_read(msg_id)
-                    results.append({"id": msg_id, "state": "skipped_stale"})
-                    continue
                 state = await process_email(message)
                 await mark_read(msg_id)
                 results.append({"id": msg_id, "state": state})
@@ -209,7 +202,7 @@ async def check_inbox() -> JSONResponse:
                 logger.error("Failed to process message %s: %s", msg_id, exc)
                 results.append({"id": msg_id, "error": str(exc)})
 
-        processed = sum(1 for r in results if r.get("state") not in (None, "skipped_stale"))
+        processed = sum(1 for r in results if "state" in r)
         return JSONResponse({"found": len(stubs), "processed": processed, "results": results})
 
     except Exception as exc:
