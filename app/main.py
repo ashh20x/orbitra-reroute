@@ -259,6 +259,45 @@ async def approve_draft(
     return JSONResponse({"status": result, "draft_id": draft_id})
 
 
+@app.post("/approvals/{draft_id}/resend-notification")
+async def resend_notification(draft_id: str) -> JSONResponse:
+    """Re-send the approval-request email for a pending draft (in case first email was lost)."""
+    from app.store import DraftRow, ShipmentRow, get_session
+    from sqlmodel import select
+
+    with get_session() as session:
+        draft = session.exec(select(DraftRow).where(DraftRow.id == draft_id)).first()
+        if not draft:
+            raise HTTPException(status_code=404, detail="Draft not found.")
+        if draft.status != "pending":
+            raise HTTPException(status_code=409, detail=f"Draft is already {draft.status}.")
+        draft_subject = draft.subject
+        draft_type = draft.draft_type
+        shipment_id = draft.shipment_id
+        ship = session.exec(select(ShipmentRow).where(ShipmentRow.id == shipment_id)).first()
+        vessel_name = ship.vessel_name if ship else "Unknown Vessel"
+        recommended_port = ship.recommended_port if ship else "TBD"
+
+    trade_ops_email = os.environ.get("TRADE_OPS_EMAIL") or os.environ.get("DEMO_SINK_EMAIL", "")
+    if not trade_ops_email:
+        raise HTTPException(status_code=500, detail="TRADE_OPS_EMAIL / DEMO_SINK_EMAIL not set.")
+
+    try:
+        from app.orchestrator import _send_approval_request
+        await _send_approval_request(
+            to_email=trade_ops_email,
+            subject=draft_subject,
+            draft_type_label=draft_type.replace("_", " ").title(),
+            vessel_name=vessel_name,
+            recommended_port=recommended_port or "TBD",
+        )
+    except Exception as exc:
+        logger.error("resend_notification failed: %s", exc)
+        raise HTTPException(status_code=500, detail=str(exc))
+
+    return JSONResponse({"status": "sent", "to": trade_ops_email, "subject": draft_subject})
+
+
 @app.post("/approvals/{draft_id}/reject")
 async def reject_draft(
     draft_id: str,
